@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c501cafd9a6096a4d8040427f00ffbfd
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 306695
+  packageName: Fizzy 2D Animated Character (Spriter)
+  packageVersion: 1.0.0.1
+  assetPath: Assets/Fizzy/animation/Throwing.anim
+  uploadId: 720839

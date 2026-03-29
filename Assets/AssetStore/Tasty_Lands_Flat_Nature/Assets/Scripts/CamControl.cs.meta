@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 952d3eaa93bcc1445986e7118b8f81a6
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 125102
+  packageName: 'Tasty Lands: Flat & Iso Nature'
+  packageVersion: 1.5
+  assetPath: Assets/Tasty_Lands_Flat_Nature/Assets/Scripts/CamControl.cs
+  uploadId: 593895

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 41f3c92375bab824b8ad773d7984fc5b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 306695
+  packageName: Fizzy 2D Animated Character (Spriter)
+  packageVersion: 1.0.0.1
+  assetPath: Assets/Fizzy/animation/Idle Blinking.anim
+  uploadId: 720839

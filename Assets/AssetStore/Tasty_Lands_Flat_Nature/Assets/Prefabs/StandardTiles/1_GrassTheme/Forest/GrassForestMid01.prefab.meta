@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: fe409701fe4397943ad21de710c1e50a
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 125102
+  packageName: 'Tasty Lands: Flat & Iso Nature'
+  packageVersion: 1.5
+  assetPath: Assets/Tasty_Lands_Flat_Nature/Assets/Prefabs/StandardTiles/1_GrassTheme/Forest/GrassForestMid01.prefab
+  uploadId: 593895

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8934a188d6a6b9a4cbda53e8dbefb71c
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 306695
+  packageName: Fizzy 2D Animated Character (Spriter)
+  packageVersion: 1.0.0.1
+  assetPath: Assets/Fizzy/animation/Run Slashing.anim
+  uploadId: 720839

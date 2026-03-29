@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 93e6105fc7da52443a8972cf2c2d0881
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 306695
+  packageName: Fizzy 2D Animated Character (Spriter)
+  packageVersion: 1.0.0.1
+  assetPath: Assets/Fizzy/animation/000.controller
+  uploadId: 720839

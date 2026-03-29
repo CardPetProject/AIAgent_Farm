@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7b67ccc17a7a475478c880fc14711731
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 125102
+  packageName: 'Tasty Lands: Flat & Iso Nature'
+  packageVersion: 1.5
+  assetPath: Assets/Tasty_Lands_Flat_Nature/Assets/Prefabs/StandardTiles/1_GrassTheme/Stone/GrassStoneBig01.prefab
+  uploadId: 593895

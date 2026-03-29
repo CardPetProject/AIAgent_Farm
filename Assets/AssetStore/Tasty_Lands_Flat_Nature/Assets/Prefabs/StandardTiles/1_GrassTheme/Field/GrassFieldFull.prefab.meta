@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1d3e23ba7400b2f44b18083a89dbf53b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 125102
+  packageName: 'Tasty Lands: Flat & Iso Nature'
+  packageVersion: 1.5
+  assetPath: Assets/Tasty_Lands_Flat_Nature/Assets/Prefabs/StandardTiles/1_GrassTheme/Field/GrassFieldFull.prefab
+  uploadId: 593895

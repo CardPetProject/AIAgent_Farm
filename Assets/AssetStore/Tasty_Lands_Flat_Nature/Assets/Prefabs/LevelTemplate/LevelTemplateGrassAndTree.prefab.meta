@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c05f890ed16aab74490c5569c26d1142
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 125102
+  packageName: 'Tasty Lands: Flat & Iso Nature'
+  packageVersion: 1.5
+  assetPath: Assets/Tasty_Lands_Flat_Nature/Assets/Prefabs/LevelTemplate/LevelTemplateGrassAndTree.prefab
+  uploadId: 593895

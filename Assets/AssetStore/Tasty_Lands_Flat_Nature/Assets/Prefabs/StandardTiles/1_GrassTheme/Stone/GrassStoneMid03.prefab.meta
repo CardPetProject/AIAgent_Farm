@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4af8911b839b87742bf4c37282a237fe
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 125102
+  packageName: 'Tasty Lands: Flat & Iso Nature'
+  packageVersion: 1.5
+  assetPath: Assets/Tasty_Lands_Flat_Nature/Assets/Prefabs/StandardTiles/1_GrassTheme/Stone/GrassStoneMid03.prefab
+  uploadId: 593895

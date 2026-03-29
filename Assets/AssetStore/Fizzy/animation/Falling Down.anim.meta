@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6e40044a7346d784ca3a94762007ea40
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 306695
+  packageName: Fizzy 2D Animated Character (Spriter)
+  packageVersion: 1.0.0.1
+  assetPath: Assets/Fizzy/animation/Falling Down.anim
+  uploadId: 720839

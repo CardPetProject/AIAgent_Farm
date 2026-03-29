@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ccc2dfc268dd0e94ab32b1c7315c89c8
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 306695
+  packageName: Fizzy 2D Animated Character (Spriter)
+  packageVersion: 1.0.0.1
+  assetPath: Assets/Fizzy/animation/Walking.anim
+  uploadId: 720839

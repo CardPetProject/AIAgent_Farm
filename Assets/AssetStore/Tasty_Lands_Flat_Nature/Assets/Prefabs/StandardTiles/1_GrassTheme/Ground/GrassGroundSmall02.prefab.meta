@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: aaaec8e2fec7e6142b26aadf3c90d1aa
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 125102
+  packageName: 'Tasty Lands: Flat & Iso Nature'
+  packageVersion: 1.5
+  assetPath: Assets/Tasty_Lands_Flat_Nature/Assets/Prefabs/StandardTiles/1_GrassTheme/Ground/GrassGroundSmall02.prefab
+  uploadId: 593895
