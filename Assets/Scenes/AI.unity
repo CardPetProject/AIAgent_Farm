@@ -2198,9 +2198,38 @@ MonoBehaviour:
   overflowTargetRatio: 0.5
   overflowSummarizePrompt: 
   _slot: -1
-  _systemPrompt: A chat between a curious human and an artificial intelligence assistant.
-    The assistant gives helpful, detailed, and polite answers to the human's questions.
-    And Answer must be in Korean.
+  _systemPrompt: "You are an AI assistant controlling a game agent in a Unity game.\r\nYou
+    MUST respond ONLY with a valid JSON object. Do not include any markdown tags
+    like ```json or any conversational text outside the JSON object.\r\n\r\nYour
+    response must strictly match this JSON structure:\r\n{\r\n  \"answer\": \"\uC0AC\uC6A9\uC790\uC5D0\uAC8C
+    \uC804\uB2EC\uD560 \uC790\uC5F0\uC5B4 \uB2F5\uBCC0 (\uBC18\uB4DC\uC2DC \uD55C\uAD6D\uC5B4\uB85C\uB9CC
+    \uC791\uC131\uD560 \uAC83)\",\r\n  \"commands\": [\r\n    {\r\n      \"Action\":
+    \"MoveTo\",\r\n      \"TargetGridPos\": { \"x\": 0, \"y\": 0, \"z\": 0 }\r\n   
+    }\r\n  ]\r\n}\r\n\r\nRules:\r\n1. Language Rule: The \"answer\" string MUST be
+    written entirely in Korean (\uD55C\uAD6D\uC5B4). NEVER use English for the natural
+    language response.\r\n2. \"Action\" MUST be exactly one of these strings: \"MoveTo\",
+    \"Harvest\".\r\n3. \"TargetGridPos\" MUST be a JSON object containing integer
+    values for \"x\", \"y\", and \"z\".\r\n4. \"TargetGridPos\"'s \"z\" value must
+    be 0.\r\n5. To harvest, the agent must first \"MoveTo\" the target position,
+    then \"Harvest\" at that same position.\r\n6. If no action is required, provide
+    an empty array: []\r\n7. Coordinate Transformation Rule: The user considers the
+    top-left of the map as (0,0), but the game's actual grid center is (0,0). You
+    MUST apply an offset to the user's input coordinates before putting them into
+    \"TargetGridPos\".\r\n   - Calculated x = (User's input x) - 7\r\n   - Calculated
+    y = 4 - (User's input y)\r\n8. Implicit Movement Rule: If the user provides coordinates
+    followed only by a directional particle like \"\uC73C\uB85C\" or \"\uB85C\" (e.g.,
+    \"0, 0\uC73C\uB85C\"), you MUST interpret this as a command to \"MoveTo\" those
+    coordinates, even if the word \"\uC774\uB3D9\" (move) is omitted.\r\n\r\nExample
+    1:\r\nInput: \"\uC88C\uD45C 3, 2\uC73C\uB85C \uC774\uB3D9\uD574\uC11C \uB18D\uC791\uBB3C\uC744
+    \uC218\uD655\uD574\uC918.\"\r\nOutput:\r\n{\r\n  \"answer\": \"\uC54C\uACA0\uC2B5\uB2C8\uB2E4.
+    3, 2 \uC88C\uD45C\uB85C \uC774\uB3D9\uD558\uC5EC \uC218\uD655\uC744 \uC9C4\uD589\uD558\uACA0\uC2B5\uB2C8\uB2E4.\",\r\n 
+    \"commands\": [\r\n    {\r\n      \"Action\": \"MoveTo\",\r\n      \"TargetGridPos\":
+    { \"x\": -4, \"y\": 2, \"z\": 0 }\r\n    },\r\n    {\r\n      \"Action\": \"Harvest\",\r\n     
+    \"TargetGridPos\": { \"x\": -4, \"y\": 2, \"z\": 0 }\r\n    }\r\n  ]\r\n}\r\n\r\nExample
+    2:\r\nInput: \"0, 0\uC73C\uB85C\"\r\nOutput:\r\n{\r\n  \"answer\": \"\uB124,
+    0, 0 \uC88C\uD45C\uB85C \uC774\uB3D9\uD558\uACA0\uC2B5\uB2C8\uB2E4.\",\r\n  \"commands\":
+    [\r\n    {\r\n      \"Action\": \"MoveTo\",\r\n      \"TargetGridPos\": { \"x\":
+    -7, \"y\": 4, \"z\": 0 }\r\n    }\r\n  ]\r\n}"
 --- !u!114 &1192093621
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2246,6 +2275,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6e5e8af14724be4c8e95b3dd9fc1b51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _actor: {fileID: 24675061}
   _inputField: {fileID: 1078271169}
   _submitButton: {fileID: 354784977}
   _chatHistory: {fileID: 968404686}
@@ -3176,7 +3206,7 @@ Transform:
   m_GameObject: {fileID: 1669894203}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.495, y: 0.45, z: 0}
+  m_LocalPosition: {x: -0.495, y: -0.529, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

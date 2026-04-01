@@ -1,5 +1,6 @@
 using LLMUnity;
 using System;
+using System.Numerics;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,6 +8,9 @@ using UnityEngine.Windows;
 
 public class AgentChatManager : MonoBehaviour
 {
+    [SerializeField]
+    AgentInstructionManager _actor;
+
     [SerializeField]
     TMP_InputField _inputField;
     [SerializeField]
@@ -23,24 +27,29 @@ public class AgentChatManager : MonoBehaviour
     GameObject _chatBoxPlayer;
 
     LLMAgent _agent;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
+    string _agentAnswer;
+
     void Awake()
     {
         _agent = GetComponent<LLMAgent>();
 
         _inputField.onSubmit.AddListener(SubmitInput);
         _submitButton.onClick.AddListener(SubmitInput);
+        _agentAnswer = "";
     }
 
     void HandleReply(string replySoFar)
     {
-        _curChatBoxAgent.SetText(replySoFar);
+        _agentAnswer = replySoFar;
     }
 
     void ReplyCompleted()
     {
+        _curChatBoxAgent.SetText(_actor.ParseLLMResponse(_agentAnswer));
         _curChatBoxAgent = null;
-        Debug.Log("The AI has finished replying");
+        _agentAnswer = "";
+        //Debug.Log("The AI has finished replying");
     }
 
     private void SubmitInput()
