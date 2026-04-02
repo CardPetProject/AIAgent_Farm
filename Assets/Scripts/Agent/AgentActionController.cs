@@ -22,20 +22,6 @@ public class AgentResponse
     public List<AgentCommand> commands;   // 실행할 행동 리스트
 }
 
-[System.Serializable]
-public class TargetGridPos
-{
-    public int x;
-    public int y;
-    public int z;
-
-    // Vector3Int로 쉽게 변환하기 위한 프로퍼티
-    public Vector3Int ToVector3Int()
-    {
-        return new Vector3Int(x, y, z);
-    }
-}
-
 // JSON을 파싱하여 생성할 데이터 클래스
 [System.Serializable]
 public class AgentCommand
