@@ -107,7 +107,10 @@ MonoBehaviour:
   coord: {x: 0, y: 0}
   tileType: 0
   isFarmable: 0
-  cropType: 0
+  isGrowing: 0
+  isReadyToHarvest: 0
+  growDuration: 0
+  maxGrowDuration: 0
 --- !u!114 &4807453978220242565
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -120,7 +123,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65cbd238803b24d469eb69b2ad8b29ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  soil: {fileID: 21300000, guid: 2b576e6daf610aa468807b6685ea1f5f, type: 3}
+  cropVisuals:
+  - tileType: 0
+    visualObject: {fileID: 0}
 --- !u!114 &8478743380966698184
 MonoBehaviour:
   m_ObjectHideFlags: 0

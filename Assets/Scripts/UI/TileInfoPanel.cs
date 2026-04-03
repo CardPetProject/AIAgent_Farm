@@ -12,15 +12,22 @@ public class TileInfoPanel : MonoBehaviour
     public TMP_Text Text_TileState;
     public TMP_Text Text_Time;
     public Slider slider;
+    public Image tileImage;
     public bool IsOpen { get; private set; }
 
     [SerializeField] private MiddleDB middleDB;
+    [SerializeField] private TileManager tileManager;
 
     private void Awake()
     {
         if (middleDB == null)
         {
             middleDB = FindFirstObjectByType<MiddleDB>();
+        }
+
+        if (tileManager == null)
+        {
+            tileManager = FindFirstObjectByType<TileManager>();
         }
     }
 
@@ -41,6 +48,7 @@ public class TileInfoPanel : MonoBehaviour
         {
             Debug.LogError("MiddleDB reference is missing.", this);
             SetTexts("Tile Info", "Unknown", "데이터를 찾을 수 없습니다.", "-");
+            SetTileImage(null);
             SetSliderValue(0f);
             return;
         }
@@ -49,22 +57,25 @@ public class TileInfoPanel : MonoBehaviour
         {
             Debug.LogWarning($"Tile info not found. tileID: {tileID}", this);
             SetTexts($"Tile #{tileID}", "Unknown", "존재하지 않는 타일입니다.", "-");
+            SetTileImage(null);
             SetSliderValue(0f);
             return;
         }
 
         string tileName = GetTileDisplayName(state);
-        string location = $"({state.coord.x}, {state.coord.y})";
-        string tileState = $"타일:{state.tileType} / 작물:{state.cropType} / 경작 가능:{(state.isFarmable ? "예" : "아니오")}";
-        string timeText = state.cropType == TileData.CropType.None ? "심어진 작물이 없습니다." : "성장 시간 시스템 연결 필요";
+        string location = $" 위치 : ({state.coord.x}, {state.coord.y})";
+        string tileState = $"경작 가능:{(state.isFarmable ? "예" : "아니오")}";
+        string timeText = state.tileType == TileData.TileType.Carrot ? "성장 시간 시스템 연결 필요" : "심어진 작물이 없습니다.";
 
         SetTexts(tileName, location, tileState, timeText);
-        SetSliderValue(state.cropType == TileData.CropType.None ? 0f : 0.1f);
+        SetTileImage(GetTileSprite(state.tileType));
+        SetSliderValue(state.tileType == TileData.TileType.Carrot ? 0.1f : 0f);
     }
 
     public void ClearPanel()
     {
         SetTexts("Tile Info", "-", "선택된 타일이 없습니다.", "-");
+        SetTileImage(null);
         SetSliderValue(0f);
     }
 
@@ -82,15 +93,13 @@ public class TileInfoPanel : MonoBehaviour
 
     private string GetTileDisplayName(MiddleDB.TileState state)
     {
-        if (state.cropType != TileData.CropType.None)
-        {
-            return state.cropType.ToString();
-        }
-
         return state.tileType switch
         {
-            TileData.TileType.Empty => $"Empty Tile #{state.id}",
-            TileData.TileType.Soil => $"Soil Tile #{state.id}",
+            TileData.TileType.Empty => $"타일명 : 빈 타일",
+            TileData.TileType.Soil => $"타일명 : 토양",
+            TileData.TileType.Weed => $"타일명 : 잔디",
+            TileData.TileType.Water => $"타일명 : 물",
+            TileData.TileType.Carrot => $"타일명 : 당근",
             _ => $"Tile #{state.id}"
         };
     }
@@ -116,6 +125,26 @@ public class TileInfoPanel : MonoBehaviour
         {
             Text_Time.text = timeText;
         }
+    }
+    private Sprite GetTileSprite(TileData.TileType tileType)
+    {
+        if (tileManager == null)
+        {
+            tileManager = FindFirstObjectByType<TileManager>();
+        }
+
+        return tileManager != null ? tileManager.GetTileSprite(tileType) : null;
+    }
+
+    private void SetTileImage(Sprite sprite)
+    {
+        if (tileImage == null)
+        {
+            return;
+        }
+
+        tileImage.sprite = sprite;
+        tileImage.enabled = sprite != null;
     }
 
     private void SetSliderValue(float value)

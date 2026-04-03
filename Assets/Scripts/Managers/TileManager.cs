@@ -5,12 +5,17 @@ public class TileManager : MonoBehaviour
     [SerializeField] private MiddleDB middleDB;
     [SerializeField] private GameObject tilePrefab;
     [SerializeField] private Transform tileRoot;
+    [SerializeField] private Sprite soilSprite;
+    [SerializeField] private Sprite carrotSprite;
+    [SerializeField] private Sprite weedSprite;
+    [SerializeField] private Sprite waterSprite;
     [SerializeField] private Vector2 tileSpacing = Vector2.one;
     [SerializeField] private Vector2 topLeftOrigin = new Vector2(-7f, 4f);
     [SerializeField] private bool generateOnStartIfNoSceneTiles = true;
 
     public TileData[,] tiles;
     public TileView[,] tileViews;
+
 
     private void Awake()
     {
@@ -121,7 +126,15 @@ public class TileManager : MonoBehaviour
 
             tiles[tile.coord.x, tile.coord.y] = tile;
             tileViews[tile.coord.x, tile.coord.y] = tile.GetComponent<TileView>();
-            middleDB.CacheTile(tile);
+
+            if (middleDB.TryGetTileState(tile.coord, out MiddleDB.TileState state))
+            {
+                tile.ApplyState(state);
+            }
+            else
+            {
+                middleDB.CacheTile(tile);
+            }
         }
     }
 
@@ -136,28 +149,6 @@ public class TileManager : MonoBehaviour
 
         tile = tiles[coord.x, coord.y];
         return tile != null;
-    }
-
-    public bool SetCrop(Vector2Int coord, TileData.CropType cropType)
-    {
-        if (middleDB == null || !middleDB.UpdateTileCrop(coord, cropType))
-        {
-            return false;
-        }
-
-        if (!TryGetTile(coord, out TileData tile))
-        {
-            return false;
-        }
-
-        middleDB.ApplyStateToTile(tile);
-        TileView tileView = tileViews[coord.x, coord.y];
-        if (tileView != null)
-        {
-            tileView.Refresh();
-        }
-
-        return true;
     }
 
     public bool SetTileType(Vector2Int coord, TileData.TileType tileType)
@@ -209,6 +200,18 @@ public class TileManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    public Sprite GetTileSprite(TileData.TileType tileType)
+    {
+        return tileType switch
+        {
+            TileData.TileType.Soil => soilSprite,
+            TileData.TileType.Carrot => carrotSprite,
+            TileData.TileType.Weed => weedSprite,
+            TileData.TileType.Water => waterSprite,
+            _ => null
+        };
     }
 
     private bool HasSceneTiles()
