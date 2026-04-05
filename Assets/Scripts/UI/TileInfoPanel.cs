@@ -2,6 +2,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+// 선택한 타일의 상태를 보여주고, 심기/수확 같은 액션을 연결하는 UI 패널.
+// 타일 ID를 기준으로 MiddleDB와 TileManager 상태를 읽어 화면을 갱신한다.
 public class TileInfoPanel : MonoBehaviour
 {
     private const float OpenY = 0f;
@@ -57,6 +59,7 @@ public class TileInfoPanel : MonoBehaviour
     }
 
 
+    // 선택된 타일 ID를 기준으로 패널의 텍스트, 이미지, 수확 버튼 상태를 갱신한다.
     public void OnClickTileInfoPanel(int tileID)
     {
         if (middleDB == null)
@@ -97,6 +100,8 @@ public class TileInfoPanel : MonoBehaviour
         SetSliderValue(state.cropState == TileData.CropState.IsGrowing ? 0.1f : state.cropState == TileData.CropState.IsHarvastable ? 1f : 0f);
         SetHarvestButton(state.cropState == TileData.CropState.IsHarvastable);
     }
+    // 현재 패널에 선택되어 있는 타일에 지정한 cropId의 작물을 심는다.
+    // 실제 심기 처리는 TileManager가 담당한다.
     public void PlantSelectedCrop(int cropId)
     {
         if (tileManager == null)
@@ -132,6 +137,7 @@ public class TileInfoPanel : MonoBehaviour
 
         OnClickTileInfoPanel(cacheID);
     }
+    // 패널이 열려 있는 동안 성장 진행도, 남은 시간, 수확 가능 여부를 실시간으로 반영한다.
     private void RefreshGrowthUI()
     {
         if (!IsOpen)
@@ -244,6 +250,7 @@ public class TileInfoPanel : MonoBehaviour
         SetHarvestButton(false);
     }
 
+    // 현재 선택된 타일의 작물을 수확하고 인벤토리에 지급한다.
     public void OnClickHarvestButton()
     {
         if (tileManager == null)
@@ -284,12 +291,14 @@ public class TileInfoPanel : MonoBehaviour
         inventoryManager.LogInventory();
     }
 
+    // 패널을 화면 안으로 이동시켜 표시한다.
     public void OpenPanel()
     {
         IsOpen = true;
         SetPanelY(OpenY);
     }
 
+    // 패널을 화면 밖으로 이동시켜 숨긴다.
     public void ClosePanel()
     {
         IsOpen = false;

@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+// 단순 인벤토리 저장소.
+// 수확 보상을 슬롯에 적재하고 현재 상태를 문자열 또는 로그로 확인할 수 있다.
 public class InventoryManager : MonoBehaviour
 {
      public ItemSO[] itemDatabase;
@@ -26,6 +28,7 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
+    // 아이템을 기존 스택 또는 빈 슬롯에 추가한다.
     public bool AddItem(ItemSO item, int amount = 1)
     {
         if (item == null)
@@ -86,6 +89,7 @@ public class InventoryManager : MonoBehaviour
         return false;
     }
 
+    // 현재 인벤토리 상태를 콘솔에 출력한다.
     public void LogInventory()
     {
         InitializeSlots();
@@ -93,6 +97,7 @@ public class InventoryManager : MonoBehaviour
         Debug.Log(GetInventoryLog(), this);
     }
 
+    // 현재 인벤토리 상태를 사람이 읽기 쉬운 문자열로 반환한다.
     public string GetInventoryLog()
     {
         InitializeSlots();

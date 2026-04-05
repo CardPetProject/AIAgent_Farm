@@ -1,5 +1,7 @@
 using UnityEngine;
 
+// 씬의 개별 타일 오브젝트가 들고 있는 런타임 상태 데이터.
+// 실제 값은 MiddleDB에서 받아와 ApplyState로 동기화된다.
 public class TileData : MonoBehaviour
 {
     public enum TileType
@@ -36,6 +38,7 @@ public class TileData : MonoBehaviour
         set => growDuration = Mathf.Max(0f, value);
     }
 
+    // MiddleDB의 TileState를 현재 타일 컴포넌트에 복사한다.
     public void ApplyState(MiddleDB.TileState state)
     {
         id = state.id;

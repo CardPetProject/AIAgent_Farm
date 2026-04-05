@@ -5,9 +5,12 @@ using System.IO;
 using Newtonsoft.Json;
 
 [DisallowMultipleComponent]
+// 타일 상태를 중앙에서 관리하는 중간 데이터 계층.
+// 게임 로직은 여기의 상태를 수정하고, TileManager가 이 상태를 실제 씬 타일에 반영한다.
 public class MiddleDB : MonoBehaviour
 {
     [System.Serializable]
+    // 타일 하나의 직렬화 가능한 상태 데이터.
     public class TileState
     {
         public int id;
@@ -59,11 +62,13 @@ public class MiddleDB : MonoBehaviour
         tileStates = BuildInitializedStates();
     }
 
+    // 좌표가 현재 맵 범위 안에 있는지 검사한다.
     public bool IsInBounds(Vector2Int coord)
     {
         return coord.x >= 0 && coord.x < width && coord.y >= 0 && coord.y < height;
     }
 
+    // 좌표 기준으로 타일 상태를 조회한다.
     public bool TryGetTileState(Vector2Int coord, out TileState state)
     {
         EnsureInitialized();
@@ -78,11 +83,13 @@ public class MiddleDB : MonoBehaviour
         return state != null;
     }
 
+    // 좌표 기준 타일 상태를 바로 가져오는 편의 함수.
     public TileState GetTileState(Vector2Int coord)
     {
         return TryGetTileState(coord, out TileState state) ? state : null;
     }
 
+    // 타일 ID 기준으로 타일 상태를 조회한다.
     public bool TryGetTileStateById(int tileId, out TileState state)
     {
         EnsureInitialized();
@@ -125,6 +132,7 @@ public class MiddleDB : MonoBehaviour
     //     tileStates[index] = state;
     // }
 
+    // MiddleDB 상태를 실제 TileData 컴포넌트에 복사한다.
     public bool ApplyStateToTile(TileData tileData)
     {
         if (tileData == null)
@@ -141,6 +149,7 @@ public class MiddleDB : MonoBehaviour
         return true;
     }
 
+    // 타일 타입을 변경하면서 해당 타입에 맞는 기본 상태를 함께 정리한다.
     public bool UpdateTileType(Vector2Int coord, TileData.TileType tileType)
     {
         if (!TryGetTileState(coord, out TileState state))
@@ -200,6 +209,7 @@ public class MiddleDB : MonoBehaviour
 
 
     //작물 생성 완료
+    // 성장 중인 작물을 수확 가능 상태로 바꾼다.
     public bool CompleteCropGrowth(Vector2Int coord)
     {
         if (!TryGetTileState(coord, out TileState state))
@@ -219,6 +229,7 @@ public class MiddleDB : MonoBehaviour
         return true;
     }
 
+    // 수확 완료 후 타일을 다시 빈 경작 가능 상태로 되돌린다.
     public bool HarvestCrop(Vector2Int coord)
     {
         if (!TryGetTileState(coord, out TileState state))
@@ -271,6 +282,7 @@ public class MiddleDB : MonoBehaviour
         Debug.Log(builder.ToString(), this);
     }
 
+    // StreamingAssets의 Mock JSON을 읽어 초기 타일 상태를 구성한다.
     private void ApplyMockJson()
     {
         string mockJson = LoadMockJsonText();
@@ -401,6 +413,7 @@ public class MiddleDB : MonoBehaviour
         return new Vector2Int(x, y);
     }
 
+    // 빠진 타일 없이 전체 맵 상태 배열을 초기화한다.
     private TileState[] BuildInitializedStates()
     {
         TileState[] initializedStates = new TileState[TileCount];
@@ -440,6 +453,7 @@ public class MiddleDB : MonoBehaviour
 
         return initializedStates;
     }
+    // 지정한 좌표의 기본 타일 상태를 생성한다.
     private TileState CreateDefaultState(int x, int y, int index)
     {
         return new TileState
@@ -454,6 +468,7 @@ public class MiddleDB : MonoBehaviour
         };
     }
 
+    // 타일 타입과 작물 상태를 기준으로 현재 심기 가능한지 계산한다.
     private static bool ComputeIsFarmable(TileData.TileType tileType, TileData.CropType cropType, TileData.CropState cropState)
     {
         if (tileType == TileData.TileType.Water)

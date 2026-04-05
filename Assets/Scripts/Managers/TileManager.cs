@@ -1,6 +1,8 @@
 using Unity.VisualScripting;
 using UnityEngine;
 
+// 타일 그리드의 생성, 상태 반영, 성장 진행, 심기/수확을 총괄하는 매니저.
+// MiddleDB를 기준 데이터로 사용하고, TileData/TileView를 그 상태에 맞춰 동기화한다.
 public class TileManager : MonoBehaviour
 {
     [SerializeField] private MiddleDB middleDB;
@@ -87,6 +89,7 @@ public class TileManager : MonoBehaviour
         RefreshAllTiles();
     }
 
+    // 씬에 타일이 없을 때 프리팹으로 전체 타일 그리드를 생성한다.
     public void GenerateGrid()
     {
         if (middleDB == null)
@@ -133,6 +136,7 @@ public class TileManager : MonoBehaviour
         }
     }
 
+    // 이미 씬에 배치된 TileData들을 배열에 등록하고 MiddleDB 상태를 반영한다.
     public void RegisterSceneTiles()
     {
         if (middleDB == null)
@@ -157,6 +161,7 @@ public class TileManager : MonoBehaviour
         }
     }
 
+    // 좌표로 타일을 찾아 TileData 인스턴스를 반환한다.
     public bool TryGetTile(Vector2Int coord, out TileData tile)
     {
         tile = null;
@@ -170,6 +175,7 @@ public class TileManager : MonoBehaviour
         return tile != null;
     }
 
+    // 타일 타입을 변경하고, 변경된 상태를 화면까지 갱신한다.
     public bool SetTileType(Vector2Int coord, TileData.TileType tileType)
     {
         if (middleDB == null || !middleDB.UpdateTileType(coord, tileType))
@@ -194,6 +200,7 @@ public class TileManager : MonoBehaviour
     }
 
     //작물을 심는 함수
+    // 지정 좌표에 작물을 심고 MiddleDB, TileData, TileView를 함께 갱신한다.
     public bool PlantCrop(Vector2Int coord, CropsData cropsData)
     {
         if (middleDB == null || !middleDB.PlantCrop(coord, cropsData))
@@ -217,6 +224,7 @@ public class TileManager : MonoBehaviour
         return true;
     }//
 
+    // 수확 가능한 작물을 수확하고 보상 아이템을 인벤토리에 넣는다.
     public bool HarvestCrop(Vector2Int coord, InventoryManager inventoryManager)
     {
         if (inventoryManager == null)
@@ -275,6 +283,7 @@ public class TileManager : MonoBehaviour
     }
 
 
+    // 전체 타일을 MiddleDB 상태 기준으로 다시 동기화한다.
     public void RefreshAllTiles()
     {
         if (middleDB == null)
@@ -303,6 +312,7 @@ public class TileManager : MonoBehaviour
         }
     }
 
+    // 성장 완료 시 타일 상태를 수확 가능 상태로 전환하고 화면을 갱신한다.
     private void CompleteCropGrowth(TileData tile)
     {
         if (tile == null)
@@ -331,6 +341,7 @@ public class TileManager : MonoBehaviour
         Debug.Log($"작물 생성 완료: {tile.coord}, crop:{tile.cropType}", tile);
     }
 
+    // 타일 타입에 맞는 바닥 스프라이트를 반환한다.
     public Sprite GetTileSprite(TileData.TileType tileType)
     {
         return tileType switch
@@ -341,6 +352,7 @@ public class TileManager : MonoBehaviour
             _ => null
         };
     }
+    // 수확 가능 상태의 작물에 표시할 최종 작물 스프라이트를 반환한다.
     public Sprite GetCropSpirte(TileData.CropType crop)
     {
         return crop switch
