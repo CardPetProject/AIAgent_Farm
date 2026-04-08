@@ -16,17 +16,23 @@ public enum ACTION_TYPE
 
     [EnumMember(Value = "Harvest")]
     E_HARVEST,
+}
 
+// 애니메이션 상태를 명확하게 관리하기 위한 Enum
+public enum AgentState
+{
+    Idle = 0,
+    Walk = 1,
+    Work = 2
 }
 
 [System.Serializable]
 public class AgentResponse
 {
-    public string answer;                 // LLM의 텍스트 답변
-    public List<AgentCommand> commands;   // 실행할 행동 리스트
+    public string answer;
+    public List<AgentCommand> commands;
 }
 
-// JSON을 파싱하여 생성할 데이터 클래스
 [System.Serializable]
 public class AgentCommand
 {
@@ -42,7 +48,6 @@ public class AgentCommand
         Action = act;
         TargetGridPos = target;
         Crop = cType;
-
     }
 }
 
@@ -59,12 +64,21 @@ public class AgentActionController : MonoBehaviour
     [SerializeField]
     float _moveSpeed = 2f;
 
+    Animator _ani;
+
+    // "AniState" 문자열을 미리 해시값으로 변환하여 성능 최적화
+    private readonly int _aniStateHash = Animator.StringToHash("AniState");
+
     private Queue<AgentCommand> _commandQueue = new Queue<AgentCommand>();
     private Coroutine _actionCoroutine;
+
+    Vector3 _agentScale;
 
     private void Start()
     {
         _agent = transform.parent;
+        _ani = _agent.GetComponent<Animator>();
+        _agentScale = _agent.localScale;
     }
 
     public bool IsBusy() { return _isBusy; }
@@ -106,13 +120,20 @@ public class AgentActionController : MonoBehaviour
 
         _isBusy = false;
         _actionCoroutine = null;
+
+        ChangeState(AgentState.Idle);
+        ResetDirection();
     }
 
     private IEnumerator MoveToRoutine(Vector2Int targetPos)
     {
-        if(_tileMng.TryGetTile(targetPos, out TileData tile))
+        if (_tileMng.TryGetTile(targetPos, out TileData tile))
         {
+            ChangeState(AgentState.Walk);
+
             Vector2 targetWorldPos = tile.transform.position;
+            SetFacingDirection(targetWorldPos.x);
+
             while (Vector2.Distance(_agent.position, targetWorldPos) > 0.01f)
             {
                 _agent.position = Vector2.MoveTowards(_agent.position, targetWorldPos, _moveSpeed * Time.deltaTime);
@@ -120,7 +141,8 @@ public class AgentActionController : MonoBehaviour
             }
 
             _agent.position = targetWorldPos;
-        } else
+        }
+        else
         {
             yield return null;
         }
@@ -128,6 +150,9 @@ public class AgentActionController : MonoBehaviour
 
     private IEnumerator PlantRoutine(Vector2Int targetPos, TileData.CropType cType)
     {
+        ChangeState(AgentState.Work);
+        ResetDirection();
+
         CropsData cropsData = CropManager.instance.GetCropData((int)cType - 1);
 
         yield return new WaitForSeconds(1f);
@@ -136,7 +161,42 @@ public class AgentActionController : MonoBehaviour
 
     private IEnumerator HarvestRoutine(Vector2Int targetPos)
     {
+        ChangeState(AgentState.Work);
+        ResetDirection();
+
         yield return new WaitForSeconds(1f);
         bool success = _tileMng.HarvestCrop(targetPos, _inventoryMng);
+    }
+
+    private void ChangeState(AgentState newState)
+    {
+        if (_ani.GetInteger(_aniStateHash) != (int)newState)
+        {
+            _ani.SetInteger(_aniStateHash, (int)newState);
+        }
+    }
+
+    private void SetFacingDirection(float targetX)
+    {
+        Vector3 scale = _agent.localScale;
+
+        float desiredX = (targetX < _agent.position.x) ? -_agentScale.x : _agentScale.x;
+
+        if (scale.x != desiredX)
+        {
+            scale.x = desiredX;
+            _agent.localScale = scale;
+        }
+    }
+
+    private void ResetDirection()
+    {
+        Vector3 scale = _agent.localScale;
+
+        if (scale.x != _agentScale.x)
+        {
+            scale.x = _agentScale.x;
+            _agent.localScale = scale;
+        }
     }
 }
