@@ -42,8 +42,21 @@ public class AgentInstructionManager : MonoBehaviour
 
     public void Chat(string input, GameObject agentChatBox)
     {
+        Chat(input, agentChatBox, true);
+    }
+
+    public void Chat(string input, GameObject agentChatBox, bool useOntology)
+    {
         _instruction = input;
-        _agent.Chat(input, HandleReply, ReplyCompleted);
+        string prompt = input;
+
+        if (useOntology && OntologyManager.Instance != null)
+        {
+            prompt = OntologyManager.Instance.BuildEnhancedPrompt(input);
+            Debug.Log("온톨로지 접근");
+        }
+
+        _agent.Chat(prompt, HandleReply, ReplyCompleted);
 
         _curChatBoxAgent = agentChatBox.GetComponent<ChatBox>();
         _curChatBoxAgent.SetText("생각중...");
