@@ -5,6 +5,21 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
 
+[Serializable]
+public class PlayerId
+{
+    public string userId = "USR-7bf68c13";
+    public string sessionId = "SESSION-732d990b";
+    public string issuedKey = "UNITY-TEST-001";
+}
+
+[Serializable]
+public class ServerResponse
+{
+    public string id;
+    public string message;
+}
+
 public class NetworkManager : MonoBehaviour
 {
     // 1. 어디서든 접근 가능한 싱글톤 인스턴스
@@ -24,6 +39,8 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
+    PlayerId _playerId;
+
     private void Awake()
     {
         // 씬 이동 시 중복 생성 방지
@@ -33,8 +50,11 @@ public class NetworkManager : MonoBehaviour
             return;
         }
         _instance = this;
+        _playerId = new PlayerId();
         DontDestroyOnLoad(this.gameObject);
     }
+
+    public PlayerId GetPlayerId() { return _playerId; }
 
     // -------------------------------------------------------------
     // GET 요청 (T: 서버로부터 받을 응답 클래스 타입)
@@ -82,6 +102,8 @@ public class NetworkManager : MonoBehaviour
     {
         // C# 객체를 JSON 문자열로 자동 직렬화
         string jsonData = JsonConvert.SerializeObject(requestData);
+        Debug.Log(url);
+        Debug.Log(jsonData);
 
         using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
         {

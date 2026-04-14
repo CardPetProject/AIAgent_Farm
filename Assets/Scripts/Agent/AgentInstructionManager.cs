@@ -84,7 +84,13 @@ public class AgentInstructionManager : MonoBehaviour
                 else
                 {
                     // 대화 시 대화 내용 서버 전송
-                    Debug.Log("대화 : " + JsonConvert.SerializeObject(new ChatLog(_instruction, new AgentResponse(response.answer, new List<AgentCommand>(0) { })), Formatting.Indented));
+                    APIController.Chat(log,
+                        onSuccess: (response) =>
+                        {
+                            Debug.Log($"저장 성공: {response.message}");
+                        },
+                    );
+                    //Debug.Log("대화 : " + JsonConvert.SerializeObject(ChatLog), Formatting.Indented));
                 }
 
                 return response.answer;

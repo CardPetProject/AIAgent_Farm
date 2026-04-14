@@ -9806,7 +9806,7 @@ MonoBehaviour:
   nProbs: 0
   ignoreEos: 0
   save: 
-  debugPrompt: 1
+  debugPrompt: 0
   overflowStrategy: 1
   overflowTargetRatio: 0.5
   overflowSummarizePrompt: 

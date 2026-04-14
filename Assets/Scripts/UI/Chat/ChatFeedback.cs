@@ -1,6 +1,8 @@
+using Mono.Cecil.Cil;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -107,7 +109,11 @@ public class ChatFeedback : MonoBehaviour
         UpdateTimerText((int)_limitSlierTime);
         if(_chat != null)
         {
-            Debug.Log(JsonConvert.SerializeObject(_chat, Formatting.Indented));
+            APIController.Chat(_chat, (response) =>
+                {
+                    Debug.Log($"저장 성공: {response.message}");
+                },
+            );
         }
 
         _chat = null;
