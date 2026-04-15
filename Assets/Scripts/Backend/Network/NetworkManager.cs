@@ -102,8 +102,6 @@ public class NetworkManager : MonoBehaviour
     {
         // C# 객체를 JSON 문자열로 자동 직렬화
         string jsonData = JsonConvert.SerializeObject(requestData);
-        Debug.Log(url);
-        Debug.Log(jsonData);
 
         using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
         {
