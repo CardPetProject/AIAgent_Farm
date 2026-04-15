@@ -1,3 +1,4 @@
+using LLMUnity;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -42,6 +43,9 @@ public class AgentChatManager : MonoBehaviour
     AgentInstructionManager _instructionMng;
 
     [SerializeField]
+    AgentIntentClassifier _classifier;
+
+    [SerializeField]
     TMP_InputField _inputField;
     [SerializeField]
     Button _submitButton;
@@ -77,6 +81,12 @@ public class AgentChatManager : MonoBehaviour
 
         GameObject obj = Instantiate(_chatBoxPlayer, _chatHistory);
         obj.GetComponent<ChatBox>().SetText(input);
-        _instructionMng.Chat(input, Instantiate(_chatBoxAgent, _chatHistory));
+        _classifier.GetFinalPrompt(input, (rst) =>
+        {
+            Debug.Log($"[라우팅 결과] AI 판별: {rst.Item2}");
+
+            // 분류기가 완성해준 finalPrompt를 메인 AI에게 그대로 전달
+            _instructionMng.Chat(rst.Item1, rst.Item2, Instantiate(_chatBoxAgent, _chatHistory));
+        });
     }
 }
