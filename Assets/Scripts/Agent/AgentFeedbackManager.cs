@@ -5,6 +5,11 @@ public class AgentFeedbackManager : MonoBehaviour
     [SerializeField]
     ChatFeedback _feedbackUI;
 
-    public void ShowFeedbackUI(ChatLog chat) { _feedbackUI.ShowFeedbackUI(chat); }
-    public void OnFeedbackButtonClicked(int feedbackFlag) { _feedbackUI.OnButtonClick(feedbackFlag); }
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+
+    public void ShowFeedbackUI(string instruct) { _feedbackUI.ShowFeedbackUI(instruct); }
 }
