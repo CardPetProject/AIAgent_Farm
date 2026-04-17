@@ -38,7 +38,7 @@ public class AgentIntentClassifier : MonoBehaviour
     private string BuildPrompt(string userInput, string rawResult)
     {
         string clean = rawResult.Trim().ToUpper();
-        Debug.Log($"[1차 분류 라우터 결과] : {rawResult}");
+        //Debug.Log($"[1차 분류 라우터 결과] : {rawResult}");
 
         string additionalData = "";
 
