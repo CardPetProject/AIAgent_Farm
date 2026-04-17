@@ -10,6 +10,7 @@ public enum ACTION_TYPE
     MoveTo,
     Plant,
     Harvest,
+    Eat,
 }
 
 // 애니메이션 상태를 명확하게 관리하기 위한 Enum
@@ -106,6 +107,14 @@ public class AgentActionController : MonoBehaviour
         {
             _inventoryMng.AddItem(_inventoryMng.itemDatabase[3]);
         }
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            _inventoryMng.AddItem(_inventoryMng.itemDatabase[0]);
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            _inventoryMng.AddItem(_inventoryMng.itemDatabase[1]);
+        }
     }
 
     public bool IsBusy() { return _isBusy; }
@@ -120,7 +129,10 @@ public class AgentActionController : MonoBehaviour
 
     AgentCommand GetValidCommand(AgentCommand cmd)
     {
-        if (cmd.Action != ACTION_TYPE.Plant && cmd.Crop != TileData.CropType.IsEmpty) cmd.Crop = TileData.CropType.IsEmpty;
+        if (cmd.Action != ACTION_TYPE.Plant && cmd.Action != ACTION_TYPE.Eat && cmd.Crop != TileData.CropType.IsEmpty)
+        {
+            cmd.Crop = TileData.CropType.IsEmpty;
+        }
         return cmd;
     }
 
@@ -141,6 +153,9 @@ public class AgentActionController : MonoBehaviour
                     break;
                 case ACTION_TYPE.Harvest:
                     yield return StartCoroutine(HarvestRoutine(currentCommand.TargetGridPos));
+                    break;
+                case ACTION_TYPE.Eat:
+                    yield return StartCoroutine(EatRoutine(currentCommand.Crop));
                     break;
             }
         }
@@ -182,7 +197,7 @@ public class AgentActionController : MonoBehaviour
         ResetDirection();
 
         CropsData cropsData = CropManager.instance.GetCropData((int)cType - 1);
-        //_inventoryMng.RemoveItem();
+        _inventoryMng.RemoveItem($"{cType} seeds");
 
         yield return new WaitForSeconds(1f);
         bool success = _tileMng.PlantCrop(targetPos, cropsData);
@@ -196,6 +211,16 @@ public class AgentActionController : MonoBehaviour
         yield return new WaitForSeconds(1f);
         bool success = _tileMng.HarvestCrop(targetPos, _inventoryMng);
     }
+
+    private IEnumerator EatRoutine(TileData.CropType cType)
+    {
+        ChangeState(AgentState.Work);
+        ResetDirection();
+
+        yield return new WaitForSeconds(1f);
+        _inventoryMng.RemoveItem(CropManager.instance.GetCropData((int)cType - 1).harvestItem);
+    }
+
 
     private void ChangeState(AgentState newState)
     {
