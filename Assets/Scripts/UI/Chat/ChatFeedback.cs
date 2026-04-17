@@ -1,8 +1,4 @@
-using Mono.Cecil.Cil;
-using Newtonsoft.Json;
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,18 +13,15 @@ public class ChatFeedback : MonoBehaviour
     Slider _slider;
     TMP_Text _sliderTime;
 
-    const float _limitSlierTime = 5f;
+    const float _limitSlierTime = 10f;
 
     Coroutine _timerCoroutine;
     int _lastDisplayedSeconds = -1;
-
-    ChatLog _chat = null;
 
     void Start()
     {
         Transform eleParent = _feedback.GetChild(0);
         _title = eleParent.GetChild(0).GetComponent<TMP_Text>();
-        _title.SetText("의도대로 작동했나요?");
         _desc = eleParent.GetChild(1).GetComponent<TMP_Text>();
 
         _slider = eleParent.GetChild(4).GetComponent<Slider>();
@@ -36,14 +29,13 @@ public class ChatFeedback : MonoBehaviour
 
         if (_feedback.gameObject.activeInHierarchy)
         {
-            OnButtonClick(0);
+            OnButtonClick(false);
         }
     }
 
-    public void ShowFeedbackUI(ChatLog chat)
+    public void ShowFeedbackUI(string instruct)
     {
-        _chat = chat;
-        _desc.SetText(chat.userCommand);
+        _desc.SetText(instruct);
         _feedback.gameObject.SetActive(true);
 
         // 기존에 실행 중인 타이머가 있다면 중단
@@ -70,6 +62,7 @@ public class ChatFeedback : MonoBehaviour
             // 소수점 올림 처리한 '초' 계산
             int currentSeconds = Mathf.CeilToInt(currentTime);
 
+            // 텍스트는 1초에 한 번, 값이 바뀌었을 때만 갱신 (핵심 최적화)
             if (currentSeconds != _lastDisplayedSeconds)
             {
                 UpdateTimerText(currentSeconds);
@@ -79,7 +72,7 @@ public class ChatFeedback : MonoBehaviour
         }
 
         // 시간이 0이 되면 자동으로 닫기
-        OnButtonClick(0);
+        OnButtonClick(false);
     }
 
     // 텍스트 갱신 전용 메서드
@@ -89,13 +82,12 @@ public class ChatFeedback : MonoBehaviour
         _sliderTime.SetText(seconds + "s");
     }
 
-    public void OnButtonClick(int flag)
+    public void OnButtonClick(bool isYes)
     {
-        if(_chat != null) _chat.flag = flag;
-        //if (flag == 1)
-        //{
-        //    // Yes 버튼 클릭 로직
-        //}
+        if (isYes)
+        {
+            // Yes 버튼 클릭 로직
+        }
 
         // UI가 닫힐 때 코루틴이 계속 도는 것을 방지
         if (_timerCoroutine != null)
@@ -107,16 +99,7 @@ public class ChatFeedback : MonoBehaviour
         // 초기화 및 UI 끄기
         _slider.value = 1f;
         UpdateTimerText((int)_limitSlierTime);
-        if(_chat != null)
-        {
-            APIController.Chat.SendLog(_chat, (response) =>
-                {
-                    Debug.Log($"저장 성공: {response.message}");
-                }
-            );
-        }
 
-        _chat = null;
         _feedback.gameObject.SetActive(false);
     }
 }
