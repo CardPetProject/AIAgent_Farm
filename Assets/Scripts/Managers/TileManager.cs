@@ -18,6 +18,8 @@ public class TileManager : MonoBehaviour
     [SerializeField] private Vector2 tileSpacing = Vector2.one;
     [SerializeField] private Vector2 topLeftOrigin = new Vector2(-7f, 4f);
     [SerializeField] private bool generateOnStartIfNoSceneTiles = true;
+    [SerializeField] private string tileSortingLayerName = "Default";
+    [SerializeField] private int lineSortingBaseOrder = 10;
 
     public TileData[,] tiles;
     public TileView[,] tileViews;
@@ -121,6 +123,7 @@ public class TileManager : MonoBehaviour
                 Vector2Int coord = new Vector2Int(x, y);
                 GameObject tileObject = Instantiate(tilePrefab, GetTilePosition(x, y), Quaternion.identity, lineParent);
                 tileObject.name = $"({x},{y})";
+                ApplyLineSorting(tileObject, y);
 
                 TileData tileData = tileObject.GetComponent<TileData>();
                 if (tileData == null)
@@ -160,6 +163,7 @@ public class TileManager : MonoBehaviour
 
             tiles[tile.coord.x, tile.coord.y] = tile;
             tileViews[tile.coord.x, tile.coord.y] = tile.GetComponent<TileView>();
+            ApplyLineSorting(tile.gameObject, tile.coord.y);
 
             middleDB.ApplyStateToTile(tile);
         }
@@ -539,6 +543,38 @@ public class TileManager : MonoBehaviour
         lineObject.transform.localRotation = Quaternion.identity;
         lineObject.transform.localScale = Vector3.one;
         return lineObject.transform;
+    }
+
+    private void ApplyLineSorting(GameObject tileObject, int lineIndex)
+    {
+        if (tileObject == null)
+        {
+            return;
+        }
+
+        SpriteRenderer[] renderers = tileObject.GetComponentsInChildren<SpriteRenderer>(true);
+        if (renderers == null || renderers.Length == 0)
+        {
+            return;
+        }
+
+        int targetBaseOrder = lineSortingBaseOrder + lineIndex;
+        int minOriginalOrder = renderers[0].sortingOrder;
+
+        for (int i = 1; i < renderers.Length; i++)
+        {
+            if (renderers[i].sortingOrder < minOriginalOrder)
+            {
+                minOriginalOrder = renderers[i].sortingOrder;
+            }
+        }
+
+        foreach (SpriteRenderer renderer in renderers)
+        {
+            int relativeOrder = renderer.sortingOrder - minOriginalOrder;
+            renderer.sortingLayerName = tileSortingLayerName;
+            renderer.sortingOrder = targetBaseOrder + relativeOrder;
+        }
     }
 
     // ======== 추가
