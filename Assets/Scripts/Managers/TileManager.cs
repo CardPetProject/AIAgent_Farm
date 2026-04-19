@@ -134,6 +134,15 @@ public class TileManager : MonoBehaviour
 
                 middleDB.ApplyStateToTile(tileData);
 
+                SpriteRenderer spriteRenderer = tileObject.GetComponent<SpriteRenderer>();
+                if (spriteRenderer != null)
+                {
+                    spriteRenderer.sortingOrder += y;
+                }
+
+                if (tileData.tileType == TileData.TileType.Water || tileData.tileType == TileData.TileType.Rock)
+                    tileObject.layer = 6;
+
                 tiles[x, y] = tileData;
                 tileViews[x, y] = tileObject.GetComponent<TileView>();
             }
@@ -198,7 +207,7 @@ public class TileManager : MonoBehaviour
         }
 
         return tile.tileType != TileData.TileType.Water
-            && tile.tileType != TileData.TileType.Tree
+            //&& tile.tileType != TileData.TileType.Tree
             && tile.tileType != TileData.TileType.Rock;
     }
 
