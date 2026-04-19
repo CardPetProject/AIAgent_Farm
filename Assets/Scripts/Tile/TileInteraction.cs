@@ -28,27 +28,27 @@ public class TileInteraction : MonoBehaviour
 
     // 현재 타일을 Soil로 바꾸는 함수.
     // 경작 가능한 땅으로 전환해야 하는 흐름에서 사용할 수 있다.
-    public void ChangeCurrentTileToSoil()
-    {
-        if (tileData == null)
-        {
-            Debug.LogError("TileData reference is missing.", this);
-            return;
-        }
+    // public void ChangeCurrentTileToSoil()
+    // {
+    //     if (tileData == null)
+    //     {
+    //         Debug.LogError("TileData reference is missing.", this);
+    //         return;
+    //     }
 
-        if (tileManager == null)
-        {
-            Debug.LogError("TileManager reference is missing.", this);
-            return;
-        }
+    //     if (tileManager == null)
+    //     {
+    //         Debug.LogError("TileManager reference is missing.", this);
+    //         return;
+    //     }
 
-        bool success = tileManager.SetTileType(tileData.coord, TileData.TileType.Soil);
-        if (!success)
-        {
-            Debug.LogWarning($"Failed to change tile {tileData.coord} to Soil.", this);
-        }
-        Debug.Log("타일이 변경되었음");
-    }
+    //     bool success = tileManager.SetTileType(tileData.coord, TileData.TileType.Soil);
+    //     if (!success)
+    //     {
+    //         Debug.LogWarning($"Failed to change tile {tileData.coord} to Soil.", this);
+    //     }
+    //     Debug.Log("타일이 변경되었음");
+    // }
 
     // 선택한 타일의 정보를 UI 패널에 표시한다.
     public void OpenTileInfoPanel()
@@ -84,10 +84,5 @@ public class TileInteraction : MonoBehaviour
         }
 
         OpenTileInfoPanel();
-
-        if (changeTileToSoilOnClick)
-        {
-            ChangeCurrentTileToSoil();
-        }
     }
 }

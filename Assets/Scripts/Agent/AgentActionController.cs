@@ -170,7 +170,7 @@ public class AgentActionController : MonoBehaviour
 
     private IEnumerator MoveToRoutine(Vector2Int targetPos)
     {
-        if (_tileMng.TryGetTile(targetPos, out TileData tile))
+        if (_tileMng.IsWalkable(targetPos) && _tileMng.TryGetTile(targetPos, out TileData tile))
         {
             ChangeState(AgentState.Walk);
 

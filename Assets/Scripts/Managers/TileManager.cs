@@ -10,8 +10,11 @@ public class TileManager : MonoBehaviour
     [SerializeField] private GameObject tilePrefab;
     [SerializeField] private Transform tileRoot;
     [SerializeField] private Sprite soilSprite;
-    [SerializeField] public Sprite weedSprite;
+    [SerializeField] public Sprite[] weedSprites;
     [SerializeField] private Sprite waterSprite;
+    [SerializeField] private Sprite[] treeSprites;//나무 이미지들
+    [SerializeField] private Sprite[] rocksSprites;//돌 이미지들
+    
     [SerializeField] private Vector2 tileSpacing = Vector2.one;
     [SerializeField] private Vector2 topLeftOrigin = new Vector2(-7f, 4f);
     [SerializeField] private bool generateOnStartIfNoSceneTiles = true;
@@ -185,6 +188,18 @@ public class TileManager : MonoBehaviour
 
         tile = tiles[coord.x, coord.y];
         return tile != null;
+    }
+
+    public bool IsWalkable(Vector2Int coord)
+    {
+        if (!TryGetTile(coord, out TileData tile) || tile == null)
+        {
+            return false;
+        }
+
+        return tile.tileType != TileData.TileType.Water
+            && tile.tileType != TileData.TileType.Tree
+            && tile.tileType != TileData.TileType.Rock;
     }
 
     // 타일 타입을 변경하고, 변경된 상태를 화면까지 갱신한다.
@@ -397,17 +412,48 @@ public class TileManager : MonoBehaviour
         Debug.Log($"작물 생성 완료: {tile.coord}, crop:{tile.cropType}", tile);
     }
 
-    // 타일 타입에 맞는 바닥 스프라이트를 반환한다.
+    // 타일 하나의 상태를 기준으로 화면에 표시할 스프라이트를 반환한다.
+    public Sprite GetTileSprite(TileData tileData)
+    {
+        if (tileData == null)
+        {
+            return null;
+        }
+
+        return tileData.tileType switch
+        {
+            TileData.TileType.Weed => GetWeedSprite(tileData.variantIndex),
+            TileData.TileType.Tree => GetTreeSprite(tileData.variantIndex),
+            TileData.TileType.Rock => GetRockSprite(tileData.variantIndex),
+            _ => GetTileSprite(tileData.tileType)
+        };
+    }
+
+    // 타일 타입에 맞는 기본 스프라이트를 반환한다.
     public Sprite GetTileSprite(TileData.TileType tileType)
     {
         return tileType switch
         {
-            TileData.TileType.Weed => null,
-            TileData.TileType.Soil => soilSprite,
             TileData.TileType.Water => waterSprite,
             _ => null
         };
     }
+
+    public Sprite GetWeedSprite(int variantIndex)
+    {
+        return GetVariantSprite(weedSprites, variantIndex);
+    }
+
+    public Sprite GetTreeSprite(int variantIndex)
+    {
+        return GetVariantSprite(treeSprites, variantIndex);
+    }
+
+    public Sprite GetRockSprite(int variantIndex)
+    {
+        return GetVariantSprite(rocksSprites, variantIndex);
+    }
+
     // 수확 가능 상태의 작물에 표시할 최종 작물 스프라이트를 반환한다.
     public Sprite GetCropSpirte(TileData.CropType crop)
     {
@@ -418,6 +464,18 @@ public class TileManager : MonoBehaviour
             TileData.CropType.IsEmpty => null,
             _ => null
         };
+    }
+
+    private Sprite GetVariantSprite(Sprite[] sprites, int variantIndex)
+    {
+        if (sprites == null || sprites.Length == 0)
+        {
+            return null;
+        }
+
+        int safeIndex = Mathf.Abs(variantIndex);
+        int spriteIndex = safeIndex % sprites.Length;
+        return sprites[spriteIndex];
     }
 
     private bool HasSceneTiles()

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using Newtonsoft.Json;
 
@@ -12,16 +13,17 @@ public class GameStateAssembler : MonoBehaviour
     [SerializeField] private TokenManager tokenManager;
 
     // 버튼 테스트용 메서드.
-    // 현재 스냅샷을 JSON으로 만들어 콘솔에 출력한다.
+    // 현재 스냅샷을 JSON 파일로 저장하고 요약 정보를 콘솔에 출력한다.
     public void DebugCreateSnapshot()
     {
         GameStateSnapshot snapshot = CreateSnapshot("test-user");
+        string savedPath = SaveSnapshotJsonToDesktop(snapshot);
 
         Debug.Log(
             $"Snapshot created | userId: {snapshot.userId}, " +
             $"tiles: {snapshot.tiles.Length}, " +
             $"inventory: {snapshot.inventory.Length}, " +
-            $"currentToken: {snapshot.currentToken}",
+            $"currentToken: {snapshot.currentToken} | savedPath: {savedPath}",
             this);
     }
 
@@ -88,7 +90,8 @@ public class GameStateAssembler : MonoBehaviour
                     id = state.id,
                     tileType = state.tileType.ToString(),
                     cropType = state.cropType.ToString(),
-                    cropState = state.cropState.ToString()
+                    cropState = state.cropState.ToString(),
+                    variantIndex = state.variantIndex
                 });
             }
         }
@@ -135,6 +138,17 @@ public class GameStateAssembler : MonoBehaviour
 
         return tokenManager.token;
     }
+
+    private string SaveSnapshotJsonToDesktop(GameStateSnapshot snapshot)
+    {
+        string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+        string fileName = $"game_snapshot_{DateTime.Now:yyyyMMdd_HHmmss}.json";
+        string filePath = Path.Combine(desktopPath, fileName);
+        string json = JsonConvert.SerializeObject(snapshot, Formatting.Indented);
+
+        File.WriteAllText(filePath, json);
+        return filePath;
+    }
 }
 
 [Serializable]
@@ -155,6 +169,7 @@ public class TileStateDto
     public string tileType;
     public string cropType;
     public string cropState;
+    public int variantIndex;
 }
 
 [Serializable]

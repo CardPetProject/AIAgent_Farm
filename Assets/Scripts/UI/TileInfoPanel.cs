@@ -314,8 +314,9 @@ public class TileInfoPanel : MonoBehaviour
         return state.tileType switch
         {
             TileData.TileType.Weed => $"타일명 : 잔디",
-            TileData.TileType.Soil => $"타일명 : 흙",
             TileData.TileType.Water => $"타일명 : 물",
+            TileData.TileType.Tree => $"타일명 : 나무",
+            TileData.TileType.Rock => $"타일명 : 돌",
             _ => $"Tile #{state.id}"
         };
     }

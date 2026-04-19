@@ -18,6 +18,7 @@ public class MiddleDB : MonoBehaviour
         public TileData.TileType tileType;
         public TileData.CropType cropType;
         public TileData.CropState cropState;
+        public int variantIndex;
         public bool isFarmable;
         public float growDuration;
         public float maxTime;
@@ -41,25 +42,45 @@ public class MiddleDB : MonoBehaviour
         public TileStateJson[] tileStates;
     }
     [SerializeField] private string mockJsonFileName = "MiddleDBMock.json";
+    [SerializeField] private bool generateRandomMapOnStart = true;
+    [SerializeField] private int worldSeed = 12345;
+    [SerializeField] private Vector2Int guaranteedWeedStartCoord = Vector2Int.zero;
+    [SerializeField] [Min(0f)] private float weedWeight = 0.7f;
+    [SerializeField] [Min(0f)] private float waterWeight = 0.1f;
+    [SerializeField] [Min(0f)] private float treeWeight = 0.1f;
+    [SerializeField] [Min(0f)] private float rockWeight = 0.1f;
     private int width = 15;
     private int height = 9;
     private TileState[] tileStates = new TileState[0];
+    private bool isInitialized;
 
     public int Width => width;
     public int Height => height;
     public int TileCount => width * height;
+    public int WorldSeed => worldSeed;
 
     private void Awake()
     {
-        ApplyMockJson();
         width = Mathf.Max(1, width);
         height = Mathf.Max(1, height);
+
+        if (!generateRandomMapOnStart)
+        {
+            ApplyMockJson();
+        }
+
         EnsureInitialized();
     }
 
     public void EnsureInitialized()
     {
+        if (isInitialized && tileStates != null && tileStates.Length == TileCount)
+        {
+            return;
+        }
+
         tileStates = BuildInitializedStates();
+        isInitialized = true;
     }
 
     // 좌표가 현재 맵 범위 안에 있는지 검사한다.
@@ -158,21 +179,17 @@ public class MiddleDB : MonoBehaviour
         }
 
         state.tileType = tileType;
+        state.variantIndex = CreateVariantIndex(coord, state.id, tileType);
 
-        if (tileType == TileData.TileType.Soil)
+        if (tileType == TileData.TileType.Weed
+            || tileType == TileData.TileType.Water
+            || tileType == TileData.TileType.Tree
+            || tileType == TileData.TileType.Rock)
         {
             state.cropType = TileData.CropType.IsEmpty;
             state.cropState = TileData.CropState.IsEmpty;
             state.growDuration = 0f;
-            state.isFarmable = true;
-            return true;
-        }
-
-        if (tileType == TileData.TileType.Weed || tileType == TileData.TileType.Water)
-        {
-            state.cropType = TileData.CropType.IsEmpty;
-            state.cropState = TileData.CropState.IsEmpty;
-            state.growDuration = 0f;
+            state.maxTime = 0f;
         }
 
         state.isFarmable = false;
@@ -310,6 +327,7 @@ public class MiddleDB : MonoBehaviour
             return;
         }
 
+        isInitialized = false;
         tileStates = new TileState[TileCount];
 
         if (parsed.tileStates == null)
@@ -343,6 +361,7 @@ public class MiddleDB : MonoBehaviour
             state.coord = coord;
             string resolvedTileType = ResolveLegacyTileType(tileJson.tileType, tileJson.cropType);
             state.tileType = ParseEnum(resolvedTileType, TileData.TileType.Weed);
+            state.variantIndex = CreateVariantIndex(coord, index, state.tileType);
             state.cropType = ParseEnum(tileJson.cropType, TileData.CropType.IsEmpty);
             state.cropState = ParseEnum(tileJson.cropState, TileData.CropState.IsEmpty);
             state.growDuration = Mathf.Max(0f, tileJson.growDuration ?? 0f);
@@ -456,22 +475,104 @@ public class MiddleDB : MonoBehaviour
     // 지정한 좌표의 기본 타일 상태를 생성한다.
     private TileState CreateDefaultState(int x, int y, int index)
     {
+        Vector2Int coord = new Vector2Int(x, y);
+        TileData.TileType tileType = GetInitialTileType(coord, index);
+
         return new TileState
         {
             id = index,
-            coord = new Vector2Int(x, y),
-            tileType = TileData.TileType.Weed,
+            coord = coord,
+            tileType = tileType,
             cropType = TileData.CropType.IsEmpty,
             cropState = TileData.CropState.IsEmpty,
-            isFarmable = true,
+            variantIndex = CreateVariantIndex(coord, index, tileType),
+            isFarmable = ComputeIsFarmable(tileType, TileData.CropType.IsEmpty, TileData.CropState.IsEmpty),
             growDuration = 0f
         };
+    }
+
+    private TileData.TileType GetInitialTileType(Vector2Int coord, int id)
+    {
+        if (coord == guaranteedWeedStartCoord)
+        {
+            return TileData.TileType.Weed;
+        }
+
+        float totalWeight = weedWeight + waterWeight + treeWeight + rockWeight;
+        if (totalWeight <= 0f)
+        {
+            return TileData.TileType.Weed;
+        }
+
+        float randomValue = CreateTileDistributionValue(coord, id);
+        float normalizedWeed = weedWeight / totalWeight;
+        float normalizedWater = waterWeight / totalWeight;
+        float normalizedTree = treeWeight / totalWeight;
+
+        if (randomValue < normalizedWeed)
+        {
+            return TileData.TileType.Weed;
+        }
+
+        randomValue -= normalizedWeed;
+        if (randomValue < normalizedWater)
+        {
+            return TileData.TileType.Water;
+        }
+
+        randomValue -= normalizedWater;
+        if (randomValue < normalizedTree)
+        {
+            return TileData.TileType.Tree;
+        }
+
+        return TileData.TileType.Rock;
+    }
+
+    private float CreateTileDistributionValue(Vector2Int coord, int id)
+    {
+        unchecked
+        {
+            uint hash = (uint)worldSeed;
+            hash ^= 0xA511E9B3u;
+            hash += (uint)coord.x * 0x9E3779B9u;
+            hash ^= (uint)coord.y * 0x85EBCA6Bu;
+            hash += (uint)id * 0xC2B2AE35u;
+            hash ^= hash >> 15;
+            hash *= 0x27D4EB2Du;
+            hash ^= hash >> 16;
+
+            return (hash & 0x00FFFFFFu) / 16777216f;
+        }
+    }
+
+    private int CreateVariantIndex(Vector2Int coord, int id, TileData.TileType tileType)
+    {
+        unchecked
+        {
+            uint hash = (uint)worldSeed;
+            hash ^= 0x9E3779B9u;
+            hash += (uint)coord.x * 0x85EBCA6Bu;
+            hash ^= (uint)coord.y * 0xC2B2AE35u;
+            hash += (uint)id * 0x27D4EB2Du;
+            hash ^= (uint)((int)tileType + 1) * 0x165667B1u;
+
+            hash ^= hash >> 16;
+            hash *= 0x7FEB352Du;
+            hash ^= hash >> 15;
+            hash *= 0x846CA68Bu;
+            hash ^= hash >> 16;
+
+            return (int)(hash & 0x7FFFFFFF);
+        }
     }
 
     // 타일 타입과 작물 상태를 기준으로 현재 심기 가능한지 계산한다.
     private static bool ComputeIsFarmable(TileData.TileType tileType, TileData.CropType cropType, TileData.CropState cropState)
     {
-        if (tileType == TileData.TileType.Water)
+        if (tileType == TileData.TileType.Water
+            || tileType == TileData.TileType.Tree
+            || tileType == TileData.TileType.Rock)
         {
             return false;
         }
@@ -485,7 +586,7 @@ public class MiddleDB : MonoBehaviour
         string resolved = !string.IsNullOrWhiteSpace(tileType) ? tileType : cropType;
         if (string.Equals(resolved, "Empty", System.StringComparison.OrdinalIgnoreCase))
         {
-            return nameof(TileData.TileType.Soil);
+            return nameof(TileData.TileType.Water);//원래 soil 수정필요
         }
 
         return resolved;

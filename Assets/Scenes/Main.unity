@@ -11734,8 +11734,30 @@ MonoBehaviour:
   tilePrefab: {fileID: 2147363288498076874, guid: 30793584832564aeca368f19274b2169, type: 3}
   tileRoot: {fileID: 1840654267}
   soilSprite: {fileID: 21300000, guid: 2b576e6daf610aa468807b6685ea1f5f, type: 3}
-  weedSprite: {fileID: 21300000, guid: 958ed1b0d26dd964cb936ec19507986b, type: 3}
+  weedSprites:
+  - {fileID: 21300000, guid: d1ce1d0d13962254b85e74e1667aeaa2, type: 3}
+  - {fileID: 21300000, guid: f96a75e1b0ba33f409f48241feafa073, type: 3}
+  - {fileID: 21300000, guid: 958ed1b0d26dd964cb936ec19507986b, type: 3}
+  - {fileID: 21300000, guid: 958ed1b0d26dd964cb936ec19507986b, type: 3}
+  - {fileID: 21300000, guid: 958ed1b0d26dd964cb936ec19507986b, type: 3}
+  - {fileID: 21300000, guid: 958ed1b0d26dd964cb936ec19507986b, type: 3}
+  - {fileID: 21300000, guid: 958ed1b0d26dd964cb936ec19507986b, type: 3}
+  - {fileID: 21300000, guid: 958ed1b0d26dd964cb936ec19507986b, type: 3}
+  - {fileID: 21300000, guid: 958ed1b0d26dd964cb936ec19507986b, type: 3}
+  - {fileID: 21300000, guid: 958ed1b0d26dd964cb936ec19507986b, type: 3}
+  - {fileID: 21300000, guid: 958ed1b0d26dd964cb936ec19507986b, type: 3}
   waterSprite: {fileID: 21300000, guid: 7e27adbd2eb9b71439341c8d10e32b0d, type: 3}
+  treeSprites:
+  - {fileID: 21300000, guid: 5958a5b0d8e46b744bc37e310be0ddfd, type: 3}
+  - {fileID: 21300000, guid: 695b79ad0fcea7549ade588187caba1a, type: 3}
+  - {fileID: 21300000, guid: fc47b12526b4719488e72b20ed73ce6a, type: 3}
+  - {fileID: 21300000, guid: 3caca96ce26d0ca4cb3a1001cb29304c, type: 3}
+  - {fileID: 21300000, guid: da4bb747ae0b44940af690affc14028f, type: 3}
+  - {fileID: 21300000, guid: bde056049660b5c4d9f4874ccbf4c532, type: 3}
+  - {fileID: 21300000, guid: 942f71dfb66f97d46a7bcc04bf913ce3, type: 3}
+  rocksSprites:
+  - {fileID: 21300000, guid: efe3165efa53e79488ffa5ed81c48a21, type: 3}
+  - {fileID: 21300000, guid: 415e28b3d68bf2044a468f866d4ab66e, type: 3}
   tileSpacing: {x: 1, y: 1}
   topLeftOrigin: {x: -7, y: 4}
   generateOnStartIfNoSceneTiles: 1
@@ -12666,7 +12688,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8983031945290737577, guid: 0027937279f75254381ba3f10063ceb8, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.00039291382
+      value: 0.00025558472
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 9065562917122220410, guid: 0027937279f75254381ba3f10063ceb8, type: 3}
@@ -20595,7 +20617,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8444915006252783122, guid: 898e2944c0971437f910c918a9146d21, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -29911,6 +29933,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mockJsonFileName: MiddleDBMock.json
+  generateRandomMapOnStart: 1
+  worldSeed: 19990221
+  guaranteedWeedStartCoord: {x: 7, y: 4}
+  weedWeight: 0.8
+  waterWeight: 0.05
+  treeWeight: 0.1
+  rockWeight: 0.05
 --- !u!4 &2070860604
 Transform:
   m_ObjectHideFlags: 0

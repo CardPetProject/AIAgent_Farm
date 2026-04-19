@@ -7,8 +7,9 @@ public class TileData : MonoBehaviour
     public enum TileType
     {
         Weed,
-        Soil,
         Water,
+        Tree,
+        Rock
     }
     public enum CropType
     {
@@ -28,6 +29,7 @@ public class TileData : MonoBehaviour
     public TileType tileType;
     public CropType cropType;
     public CropState cropState;
+    public int variantIndex;
     public bool isFarmable;//이 타일에 새로운 작물을 심을 수 있는지
     public float maxTime;
     private float growDuration;//성장 완료까지 남은 시간
@@ -46,6 +48,7 @@ public class TileData : MonoBehaviour
         tileType = state.tileType;
         cropType = state.cropType;
         cropState = state.cropState;
+        variantIndex = state.variantIndex;
         isFarmable = state.isFarmable;
         GrowDuration = state.growDuration;
         maxTime = state.maxTime;
