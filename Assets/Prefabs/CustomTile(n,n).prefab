@@ -300,7 +300,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65cbd238803b24d469eb69b2ad8b29ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cropLayer0: {fileID: 5534764427299298749}
   cropLayer_Soil: {fileID: 24941903240559521}
   cropLayer1: {fileID: 1008262796780653217}
 --- !u!114 &8478743380966698184
@@ -362,7 +361,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.9, y: 0.9}
+  m_Size: {x: 0.86, y: 0.9}
   m_EdgeRadius: 0
 --- !u!1 &6202026330653704449
 GameObject:

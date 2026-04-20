@@ -69,6 +69,7 @@ public class AgentCommand
 public class AgentActionController : MonoBehaviour
 {
     Transform _agent;
+    AgentPathFinder _pathFinder;
     Transform _layerAim;
     SpriteRenderer[] _agentRenderers;
     int[] _agentRendererRelativeOrders;
@@ -88,7 +89,6 @@ public class AgentActionController : MonoBehaviour
 
     Animator _ani;
 
-    // "AniState" 문자열을 미리 해시값으로 변환하여 성능 최적화
     private readonly int _aniStateHash = Animator.StringToHash("AniState");
 
     //private Queue<AgentCommand> _commandQueue = new Queue<AgentCommand>();
@@ -101,6 +101,8 @@ public class AgentActionController : MonoBehaviour
         _agent = transform.parent;
         _ani = _agent.GetComponent<Animator>();
         _agentScale = _agent.localScale;
+        _pathFinder = _agent.GetComponent<AgentPathFinder>();
+        AstarPath.active.Scan();
         _layerAim = FindLayerAim();
         CacheAgentRenderers();
         UpdateCharacterSorting();
@@ -126,6 +128,11 @@ public class AgentActionController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha4))
         {
             _inventoryMng.AddItem(_inventoryMng.itemDatabase[1]);
+        }
+        if(Input.GetMouseButtonDown(1))
+        {
+            _tileMng.TryGetTileFromWorldPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition), out TileData tile);
+            StartCoroutine(MoveToRoutine(tile.coord));
         }
     }
 
@@ -189,11 +196,14 @@ public class AgentActionController : MonoBehaviour
             Vector2 targetWorldPos = tile.transform.position;
             SetFacingDirection(targetWorldPos.x);
 
-            while (Vector2.Distance(_agent.position, targetWorldPos) > 0.01f)
+            bool isMovementDone = false;
+
+            _pathFinder.MoveToTarget(targetWorldPos, _moveSpeed, () =>
             {
-                _agent.position = Vector2.MoveTowards(_agent.position, targetWorldPos, _moveSpeed * Time.deltaTime);
-                yield return null;
-            }
+                isMovementDone = true;
+            });
+
+            yield return new WaitUntil(() => isMovementDone);
 
             _agent.position = targetWorldPos;
         }
