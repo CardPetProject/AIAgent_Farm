@@ -11822,7 +11822,7 @@ MonoBehaviour:
   tileRoot: {fileID: 1840654267}
   soilSprite: {fileID: 21300000, guid: 2b576e6daf610aa468807b6685ea1f5f, type: 3}
   weedSprites:
-  - {fileID: 21300000, guid: d1ce1d0d13962254b85e74e1667aeaa2, type: 3}
+  - {fileID: -3944813383015496832, guid: 21cfc42377f835640957cfe9992d5036, type: 3}
   - {fileID: 21300000, guid: f96a75e1b0ba33f409f48241feafa073, type: 3}
   - {fileID: 21300000, guid: 958ed1b0d26dd964cb936ec19507986b, type: 3}
   - {fileID: 21300000, guid: 958ed1b0d26dd964cb936ec19507986b, type: 3}
@@ -20898,6 +20898,10 @@ PrefabInstance:
     - target: {fileID: 7524736822469587925, guid: 6df0d465107004f25957575e270ef9de, type: 3}
       propertyPath: m_Name
       value: ItemEffectPool
+      objectReference: {fileID: 0}
+    - target: {fileID: 7524736822469587925, guid: 6df0d465107004f25957575e270ef9de, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
