@@ -25,7 +25,6 @@ public class GameManager : MonoBehaviour
         title_Menu.SetActive(false);
     }
 
-
     public void ShowLogo()
     {
         userInfo.CloseUI();
