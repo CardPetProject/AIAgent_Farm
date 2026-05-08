@@ -6601,6 +6601,7 @@ GameObject:
   m_Component:
   - component: {fileID: 484139206}
   - component: {fileID: 484139205}
+  - component: {fileID: 484139207}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -6645,6 +6646,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 198501743}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &484139207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 484139204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ddc0a22e642a247f49d087b4ad476162, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScreenCaptureButton
+  filePrefix: farm_screenshot
 --- !u!1 &500261495
 GameObject:
   m_ObjectHideFlags: 0
