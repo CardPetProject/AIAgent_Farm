@@ -45,7 +45,7 @@ public class SoundConfigController : MonoBehaviour
             _currentData.masterVolume = volume;
             _isChanged = true;
 
-            //ApplySoundSettingsToUnity();
+            ApplySoundSettingsToUnity();
         }
     }
 
@@ -55,7 +55,7 @@ public class SoundConfigController : MonoBehaviour
         {
             _currentData.bgmVolume = volume;
             _isChanged = true;
-            //ApplySoundSettingsToUnity();
+            ApplySoundSettingsToUnity();
         }
     }
 
@@ -65,18 +65,26 @@ public class SoundConfigController : MonoBehaviour
         {
             _currentData.sfxVolume = volume;
             _isChanged = true;
-            //ApplySoundSettingsToUnity();
+            ApplySoundSettingsToUnity();
         }
     }
 
     // --- 실제 Unity 사운드 시스템(AudioMixer 등)에 적용하는 메서드 ---
     private void ApplySoundSettingsToUnity()
     {
-        // 예시: AudioMixer를 사용 중이라면 여기에 적용 코드를 넣습니다.
-        // float masterDB = Mathf.Log10(Mathf.Max(_currentData.masterVolume, 0.0001f)) * 20f;
-        // audioMixer.SetFloat("Master", masterDB);
-
-        // Debug.Log($"[Sound] 사운드 즉시 적용: Master({_currentData.masterVolume})");
+        // AudioManager 인스턴스가 존재할 때만 실행
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.SetMasterVolume(_currentData.masterVolume);
+            AudioManager.Instance.SetBgmVolume(_currentData.bgmVolume);
+            AudioManager.Instance.SetSfxVolume(_currentData.sfxVolume);
+            
+            // Debug.Log($"[Sound] 사운드 즉시 적용: Master({_currentData.masterVolume}), BGM({_currentData.bgmVolume}), SFX({_currentData.sfxVolume})");
+        }
+        else
+        {
+            Debug.LogWarning("AudioManager 인스턴스를 찾을 수 없어 볼륨을 적용할 수 없습니다.");
+        }
     }
 
     // --- Load Data ---
@@ -119,6 +127,6 @@ public class SoundConfigController : MonoBehaviour
         if (sfxSlider != null) sfxSlider.SetValueWithoutNotify(_currentData.sfxVolume);
 
         // 3. 실제 사운드 볼륨도 원래 상태(저장되어 있던 상태)로 다시 롤백
-        //ApplySoundSettingsToUnity();
+        ApplySoundSettingsToUnity();
     }
 }
