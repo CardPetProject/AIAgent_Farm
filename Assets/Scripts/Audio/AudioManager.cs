@@ -2,29 +2,65 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 
+// 1. 관리할 SFX 종류를 Enum으로 정의합니다.
+// 게임에 필요한 효과음이 생길 때마다 여기에 추가해주세요.
+public enum SfxType
+{
+    Bite,
+    EnergyLow,
+    EnergyCharged,
+    Plant_Harvest,
+    RobotEffect,
+    Walk0,
+    Walk1,
+    Chat,
+    Click,
+    Store0,
+    Store1,
+}
+
+[System.Serializable]
+public class AudioData
+{
+    public SfxType sfxType; // string key 대신 Enum 사용
+    public AudioClip clip;
+}
+
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance { get; private set; }
 
     [Header("Audio Mixer")]
     [SerializeField] private AudioMixer audioMixer;
+    [SerializeField] private AudioMixerGroup sfxMixerGroup;
 
-    [Header("Audio Sources")]
+    [Header("BGM Settings")]
     [SerializeField] private AudioSource bgmSource;
-    [SerializeField] private AudioSource sfxSource;
-
-    [Header("BGM Playlist")]
+    [Tooltip("랜덤으로 재생할 BGM 리스트를 넣으세요.")]
     [SerializeField] private List<AudioClip> bgmList = new List<AudioClip>();
-    
     private int _currentBgmIndex = -1;
+
+    [Header("SFX Settings")]
+    [Tooltip("초기에 생성할 SFX AudioSource의 개수")]
+    [SerializeField] private int sfxPoolSize = 5;
+    [Tooltip("인스펙터에서 SFX 타입과 오디오 클립을 등록하세요.")]
+    [SerializeField] private List<AudioData> sfxList = new List<AudioData>();
+    [SerializeField] AudioSource windEffectSource; // 바람 효과음용 AudioSource
+    [SerializeField] AudioSource birdEffectSource; // 새 효과음용 AudioSource
+    
+    private List<AudioSource> sfxSources = new List<AudioSource>();
+    
+    // Dictionary의 Key 타입도 SfxType으로 변경
+    private Dictionary<SfxType, AudioClip> sfxDictionary = new Dictionary<SfxType, AudioClip>();
 
     private void Awake()
     {
-        // Singleton 패턴 구성 (씬 전환 시 유지하려면 DontDestroyOnLoad 추가)
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // 필요 시 주석 해제
+            DontDestroyOnLoad(gameObject);
+            
+            InitializeSfxSystem();
         }
         else
         {
@@ -42,12 +78,13 @@ public class AudioManager : MonoBehaviour
 
     private void Update()
     {
-        // BGM이 끝나면 다음 BGM을 재생
         if (bgmSource != null && !bgmSource.isPlaying && bgmList.Count > 0)
         {
             PlayNextBGM();
         }
     }
+
+    // --- BGM 로직 ---
 
     private void PlayNextBGM()
     {
@@ -57,15 +94,12 @@ public class AudioManager : MonoBehaviour
 
         if (bgmList.Count == 1)
         {
-            // BGM이 1개뿐이라면 같은 곡 반복
             nextIndex = 0;
         }
         else
         {
-            // 랜덤 인덱스 추출
             nextIndex = Random.Range(0, bgmList.Count);
 
-            // 이전 인덱스와 같다면 1을 더하고 리스트 크기로 나눈 나머지를 사용하여 강제로 다른 곡 선택
             if (nextIndex == _currentBgmIndex)
             {
                 nextIndex = (nextIndex + 1) % bgmList.Count;
@@ -77,38 +111,80 @@ public class AudioManager : MonoBehaviour
         bgmSource.Play();
     }
 
-    /// <summary>
-    /// 단일 SFX 재생용 메서드 (필요에 따라 Object Pooling으로 확장 가능)
-    /// </summary>
-    public void PlaySFX(AudioClip clip)
+    public void StopBGM()
     {
-        if (clip != null)
+        bgmSource.Stop();
+    }
+
+    // --- SFX 로직 (Enum 사용) ---
+
+    private void InitializeSfxSystem()
+    {
+        foreach (var sfx in sfxList)
         {
-            sfxSource.PlayOneShot(clip);
+            // 동일한 Enum 키가 중복으로 등록되는 것을 방지 (TryAdd는 C# 7.0 이상 지원)
+            sfxDictionary.TryAdd(sfx.sfxType, sfx.clip);
+        }
+
+        for (int i = 0; i < sfxPoolSize; i++)
+        {
+            CreateNewSfxSource();
         }
     }
 
-    // --- 볼륨 조절 메서드 (SoundConfigController에서 호출) ---
+    private AudioSource CreateNewSfxSource()
+    {
+        AudioSource newSource = gameObject.AddComponent<AudioSource>();
+        newSource.outputAudioMixerGroup = sfxMixerGroup;
+        newSource.playOnAwake = false;
+        sfxSources.Add(newSource);
+        return newSource;
+    }
+
+    private AudioSource GetAvailableSfxSource()
+    {
+        foreach (var source in sfxSources)
+        {
+            if (!source.isPlaying) return source;
+        }
+        return CreateNewSfxSource(); 
+    }
+
+    // 매개변수로 string 대신 SfxType Enum을 받습니다.
+    public void PlaySFX(SfxType sfxType)
+    {
+        if (sfxDictionary.TryGetValue(sfxType, out AudioClip clip))
+        {
+            AudioSource source = GetAvailableSfxSource();
+            source.clip = clip;
+            source.Play();
+        }
+        else
+        {
+            Debug.LogWarning($"[AudioManager] SFX Type '{sfxType}'가 등록되지 않았습니다.");
+        }
+    }
+
+    public void PlayEffect()
+    {
+        windEffectSource.Play();
+        birdEffectSource.Play();
+    }
+
+    public void StopEffect()
+    {
+        windEffectSource.Stop();
+        birdEffectSource.Stop();
+    }
+
+    // --- 볼륨 조절 메서드 ---
     
-    public void SetMasterVolume(float volume)
-    {
-        audioMixer.SetFloat("Master", VolumeToDB(volume));
-    }
+    public void SetMasterVolume(float volume) => audioMixer.SetFloat("Master", VolumeToDB(volume));
+    public void SetBgmVolume(float volume) => audioMixer.SetFloat("BGM", VolumeToDB(volume));
+    public void SetSfxVolume(float volume) => audioMixer.SetFloat("SFX", VolumeToDB(volume));
 
-    public void SetBgmVolume(float volume)
-    {
-        audioMixer.SetFloat("BGM", VolumeToDB(volume));
-    }
-
-    public void SetSfxVolume(float volume)
-    {
-        audioMixer.SetFloat("SFX", VolumeToDB(volume));
-    }
-
-    // 슬라이더 값(0~1)을 AudioMixer의 데시벨(dB) 값으로 변환 (-80 ~ 0)
     private float VolumeToDB(float volume)
     {
-        // 0에 한없이 가까우면 -80dB(Mute)에 가깝게 처리
         return Mathf.Log10(Mathf.Clamp(volume, 0.0001f, 1f)) * 20f;
     }
 }
