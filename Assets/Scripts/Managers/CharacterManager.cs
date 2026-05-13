@@ -3,6 +3,8 @@ using UnityEngine;
 public class CharacterManager : MonoBehaviour
 {
     public static CharacterManager Instance { get; private set; }
+    public GameObject[] focus;
+    public GameObject UI;
 
     [SerializeField]
     private int characterID;
@@ -14,15 +16,16 @@ public class CharacterManager : MonoBehaviour
     private bool refreshOnStart = true;
 
     public int CharacterID => characterID;
+    
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Debug.LogWarning("[CharacterManager] Multiple CharacterManager instances found. Using the latest one.", this);
-        }
-
         Instance = this;
+    }
+    public void ShowUI()
+    {
+        focus[characterID].gameObject.SetActive(true);
+        UI.gameObject.SetActive(true);
     }
 
     private void Start()
@@ -32,10 +35,31 @@ public class CharacterManager : MonoBehaviour
             Characterrefresh();
         }
     }
-
-    public void SetCharacterID(int newCharacterID)
+    public void SetCharacterID(int ID)
     {
-        characterID = newCharacterID;
+        characterID = ID;
+
+        if (focus != null)
+        {
+            for (int index = 0; index < focus.Length; index++)
+            {
+                if (focus[index] != null)
+                {
+                    focus[index].SetActive(false);
+                }
+            }
+        }
+
+        if (focus != null && ID >= 0 && ID < focus.Length && focus[ID] != null)
+        {
+            focus[ID].SetActive(true);
+        }
+
+        Characterrefresh();
+    }
+
+    public void SetCharacterID()
+    {
         Characterrefresh();
     }
 
