@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7003b871c5e2b2643a9541ef11f47208
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 299631
+  packageName: Robot 2d Animated Character (Spriter)
+  packageVersion: 1.0.0.1
+  assetPath: Assets/Robot/Animation/Running.anim
+  uploadId: 701038

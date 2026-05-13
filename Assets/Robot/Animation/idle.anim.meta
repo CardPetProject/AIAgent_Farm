@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: fe2a51095e1356c4f910f2382f678940
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 299631
+  packageName: Robot 2d Animated Character (Spriter)
+  packageVersion: 1.0.0.1
+  assetPath: Assets/Robot/Animation/idle.anim
+  uploadId: 701038

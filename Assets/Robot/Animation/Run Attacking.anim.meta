@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: aa6608918013189439fc29c8250b3165
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 299631
+  packageName: Robot 2d Animated Character (Spriter)
+  packageVersion: 1.0.0.1
+  assetPath: Assets/Robot/Animation/Run Attacking.anim
+  uploadId: 701038

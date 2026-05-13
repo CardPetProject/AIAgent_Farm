@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: cbebf1bf339057c4780a8dc7edade226
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 299631
+  packageName: Robot 2d Animated Character (Spriter)
+  packageVersion: 1.0.0.1
+  assetPath: Assets/Robot/Animation/Jump Start.anim
+  uploadId: 701038
