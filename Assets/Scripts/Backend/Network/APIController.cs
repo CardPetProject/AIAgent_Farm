@@ -194,6 +194,7 @@ public class GameSnapshotSaveRequest
     public int gold;
     public int farmLevel;
     public int farmNowExp;
+    public int characterID;
     public TileStateDto[] tiles;
     public InventoryItemDto[] inventory;
 }
@@ -211,6 +212,7 @@ public class LatestSnapshotResponse
     public int gold;
     public int farmLevel;
     public int farmNowExp;
+    public int characterID;
     public int slotId;
     public string savedAt;
     public string message;

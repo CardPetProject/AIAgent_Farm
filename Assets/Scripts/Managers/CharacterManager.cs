@@ -1,10 +1,14 @@
+using System;
 using UnityEngine;
 
 public class CharacterManager : MonoBehaviour
 {
     public static CharacterManager Instance { get; private set; }
+    public static event Action<int> CharacterChanged;
     public GameObject[] focus;
     public GameObject UI;
+    public Sprite[] characterIcons;
+    public Sprite[] characterHeads;
 
     [SerializeField]
     private int characterID;
@@ -55,12 +59,14 @@ public class CharacterManager : MonoBehaviour
             focus[ID].SetActive(true);
         }
 
-        Characterrefresh();
+        // Characterrefresh();
+        // CharacterChanged?.Invoke(characterID);
     }
 
     public void SetCharacterID()
     {
         Characterrefresh();
+        CharacterChanged?.Invoke(characterID);
     }
 
     public void Characterrefresh()

@@ -25,6 +25,8 @@ public class FarmLevelManager : MonoBehaviour
     [SerializeField] private bool includePersonaName = true;
     [SerializeField] private float steamLabelRetryDelay = 0.5f;
     [SerializeField] private int steamLabelRetryCount = 10;
+    public Image characterIcon;
+    [SerializeField] private CharacterManager characterManager;
 
    bool _isInitialized;
 
@@ -34,6 +36,23 @@ public class FarmLevelManager : MonoBehaviour
         {
             farmName = GetComponent<TMP_Text>();
         }
+
+        if (characterManager == null)
+        {
+            characterManager = CharacterManager.Instance != null
+                ? CharacterManager.Instance
+                : FindFirstObjectByType<CharacterManager>();
+        }
+    }
+
+    private void OnEnable()
+    {
+        CharacterManager.CharacterChanged += RefreshCharacterIcon;
+    }
+
+    private void OnDisable()
+    {
+        CharacterManager.CharacterChanged -= RefreshCharacterIcon;
     }
 
     void Start()
@@ -44,6 +63,7 @@ public class FarmLevelManager : MonoBehaviour
         }
 
         RefreshLabel();
+        RefreshCharacterIcon();
         InvokeRepeating(nameof(TryRefreshLabelUntilReady), steamLabelRetryDelay, steamLabelRetryDelay);
     }
 
@@ -176,6 +196,46 @@ public class FarmLevelManager : MonoBehaviour
             farmLevelSlider.maxValue = maxfarmExp;
             farmLevelSlider.value = nowfarmExp;
         }
+
+        RefreshCharacterIcon();
+    }
+
+    public void RefreshCharacterIcon()
+    {
+        if (characterIcon == null)
+        {
+            return;
+        }
+
+        if (characterManager == null)
+        {
+            characterManager = CharacterManager.Instance != null
+                ? CharacterManager.Instance
+                : FindFirstObjectByType<CharacterManager>();
+        }
+
+        if (characterManager == null || characterManager.characterIcons == null)
+        {
+            return;
+        }
+
+        int characterID = characterManager.CharacterID;
+        if (characterID < 0 || characterID >= characterManager.characterIcons.Length)
+        {
+            Debug.LogWarning($"[FarmLevelManager] Character ID {characterID} is out of icon range. Icon count: {characterManager.characterIcons.Length}.", this);
+            return;
+        }
+
+        Sprite icon = characterManager.characterIcons[characterID];
+        if (icon != null)
+        {
+            characterIcon.sprite = icon;
+        }
+    }
+
+    private void RefreshCharacterIcon(int characterID)
+    {
+        RefreshCharacterIcon();
     }
 
     public void OpenUI()

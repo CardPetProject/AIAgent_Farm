@@ -14,6 +14,7 @@ public class GameStateAssembler : MonoBehaviour
     [SerializeField] private FarmLevelManager farmLevelManager;
     [SerializeField] private GoldManager goldManager;
     [SerializeField] private TileManager tileManager;
+    [SerializeField] private CharacterManager characterManager;
 
     // 버튼 테스트용 메서드.
     // 현재 스냅샷을 JSON 파일로 저장하고 요약 정보를 콘솔에 출력한다.
@@ -115,6 +116,13 @@ public class GameStateAssembler : MonoBehaviour
         if (tileManager == null)
         {
             tileManager = FindFirstObjectByType<TileManager>();
+        }
+
+        if (characterManager == null)
+        {
+            characterManager = CharacterManager.Instance != null
+                ? CharacterManager.Instance
+                : FindFirstObjectByType<CharacterManager>();
         }
     }
 
@@ -220,7 +228,8 @@ public class GameStateAssembler : MonoBehaviour
             currentToken = BuildCurrentToken(),
             farmLevel = BuildFarmLevel(),
             farmNowExp = BuildFarmNowExp(),
-            gold = BuildGold()
+            gold = BuildGold(),
+            characterID = BuildCharacterID()
         };
     }
 
@@ -337,6 +346,24 @@ public class GameStateAssembler : MonoBehaviour
         return Mathf.Max(0, goldManager.GetGold());
     }
 
+    private int BuildCharacterID()
+    {
+        if (characterManager == null)
+        {
+            characterManager = CharacterManager.Instance != null
+                ? CharacterManager.Instance
+                : FindFirstObjectByType<CharacterManager>();
+        }
+
+        if (characterManager == null)
+        {
+            Debug.LogWarning("[GameStateAssembler] CharacterManager reference is missing.", this);
+            return 0;
+        }
+
+        return Mathf.Max(0, characterManager.CharacterID);
+    }
+
     private string GetDefaultUserId()
     {
         PlayerId playerId = NetworkManager.Instance.GetPlayerId();
@@ -385,6 +412,12 @@ public class GameStateAssembler : MonoBehaviour
         if (snapshot.gold < 0)
         {
             error = "gold must be 0 or greater.";
+            return false;
+        }
+
+        if (snapshot.characterID < 0)
+        {
+            error = "characterID must be 0 or greater.";
             return false;
         }
 
@@ -488,6 +521,7 @@ public class GameStateAssembler : MonoBehaviour
             gold = snapshot.gold,
             farmLevel = snapshot.farmLevel,
             farmNowExp = snapshot.farmNowExp,
+            characterID = snapshot.characterID,
             tiles = snapshot.tiles,
             inventory = snapshot.inventory
         };
@@ -531,6 +565,11 @@ public class GameStateAssembler : MonoBehaviour
                 farmNowExp = Mathf.Max(0, response.farmNowExp)
             });
         }
+
+        if (characterManager != null)
+        {
+            characterManager.SetCharacterID(Mathf.Max(0, response.characterID));
+        }
     }
 
     private void ApplyDefaultState()
@@ -566,6 +605,11 @@ public class GameStateAssembler : MonoBehaviour
         {
             farmLevelManager.InitializeFromBackend(null);
         }
+
+        if (characterManager != null)
+        {
+            characterManager.SetCharacterID(0);
+        }
     }
 }
 
@@ -581,6 +625,7 @@ public class GameStateSnapshot
     public int farmLevel;
     public int farmNowExp;
     public int gold;
+    public int characterID;
 }
 
 [Serializable]
@@ -619,6 +664,7 @@ public class SnapshotUploadResponse
     public int farmLevel;
     public int farmNowExp;
     public int gold;
+    public int characterID;
     public int tileCount;
     public int inventoryCount;
     public string savedAt;
