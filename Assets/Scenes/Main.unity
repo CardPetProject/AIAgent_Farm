@@ -255,6 +255,7 @@ MonoBehaviour:
   _intentSystemPrompt: 
   _clarificationSystemPrompt: 
   _replySystemPrompt: 
+  _characterManager: {fileID: 0}
 --- !u!114 &5394183
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15387,7 +15388,26 @@ MonoBehaviour:
   characterHeads:
   - {fileID: 21300000, guid: 41cf331e92abdeb4ea4a75c34ae1b790, type: 3}
   - {fileID: 21300000, guid: cd046e1fb2ecf2648b8c469909da726e, type: 3}
-  characterID: 1
+  characterPersonaPrompts:
+  - 'Character 0 persona:
+
+    - Personality: kind, gentle, friendly, and supportive.
+
+    -
+    Tone: warm, polite, soft, and encouraging.
+
+    - Behavior: help the user like
+    a reliable farm companion.
+
+    - In Korean, use friendly and caring expressions.'
+  - "Character 1 persona:\n- Personality: prickly, blunt, sharp-tongued, and rude.\n-
+    Tone: curt, sarcastic, impatient, and not overly kind.\n- Behavior: still understand
+    and execute the user's request correctly.\n- In Korean, use blunt expressions
+    like '\uBB50, \uC54C\uACA0\uC5B4', '\uD558...', '\uADC0\uCC2E\uC9C0\uB9CC \uD574\uC904\uAC8C',
+    or '\uADF8 \uC815\uB3C4\uB294 \uD574\uC904 \uC218 \uC788\uC5B4'.\n- Do not become
+    warm, sweet, apologetic, or overly supportive.\n- Do not use severe profanity,
+    hate speech, or abusive threats."
+  characterID: 0
   targetAnimator: {fileID: 1405555902}
   characterAnimators:
   - {fileID: 9100000, guid: 93e6105fc7da52443a8972cf2c2d0881, type: 2}
@@ -19675,7 +19695,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20.6
+  m_fontSize: 20.95
   m_fontSizeBase: 27.3
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -26490,6 +26510,7 @@ MonoBehaviour:
   _validator: {fileID: 1671378091}
   _actionPlanningSystemPrompt: 
   _conversationSystemPrompt: 
+  _characterManager: {fileID: 0}
 --- !u!114 &1671378088
 MonoBehaviour:
   m_ObjectHideFlags: 0

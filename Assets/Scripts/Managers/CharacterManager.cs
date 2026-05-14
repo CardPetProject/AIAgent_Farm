@@ -9,6 +9,8 @@ public class CharacterManager : MonoBehaviour
     public GameObject UI;
     public Sprite[] characterIcons;
     public Sprite[] characterHeads;
+    [SerializeField, TextArea(3, 8)]
+    private string[] characterPersonaPrompts = CreateDefaultPersonaPrompts();
 
     [SerializeField]
     private int characterID;
@@ -20,6 +22,8 @@ public class CharacterManager : MonoBehaviour
     private bool refreshOnStart = true;
 
     public int CharacterID => characterID;
+
+    public string CurrentPersonaPrompt => GetPersonaPrompt(characterID);
     
 
     private void Awake()
@@ -106,6 +110,61 @@ public class CharacterManager : MonoBehaviour
         targetAnimator.Update(0f);
     }
 
+    public string GetPersonaPrompt(int ID)
+    {
+        EnsurePersonaPrompts();
+
+        if (characterPersonaPrompts == null || characterPersonaPrompts.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        if (ID < 0 || ID >= characterPersonaPrompts.Length)
+        {
+            return characterPersonaPrompts[0];
+        }
+
+        return characterPersonaPrompts[ID] ?? string.Empty;
+    }
+
+    [ContextMenu("Reset Persona Prompts To Defaults")]
+    private void ResetPersonaPromptsToDefaults()
+    {
+        characterPersonaPrompts = CreateDefaultPersonaPrompts();
+    }
+
+    private void EnsurePersonaPrompts()
+    {
+        if (characterPersonaPrompts == null
+            || characterPersonaPrompts.Length < 2
+            || string.IsNullOrWhiteSpace(characterPersonaPrompts[0])
+            || string.IsNullOrWhiteSpace(characterPersonaPrompts[1])
+            || characterPersonaPrompts[0].Contains("착하고")
+            || characterPersonaPrompts[1].Contains("까칠하고"))
+        {
+            characterPersonaPrompts = CreateDefaultPersonaPrompts();
+        }
+    }
+
+    private static string[] CreateDefaultPersonaPrompts()
+    {
+        return new[]
+        {
+            "Character 0 persona:\n" +
+            "- Personality: kind, gentle, friendly, and supportive.\n" +
+            "- Tone: warm, polite, soft, and encouraging.\n" +
+            "- Behavior: help the user like a reliable farm companion.\n" +
+            "- In Korean, use friendly and caring expressions.",
+            "Character 1 persona:\n" +
+            "- Personality: prickly, blunt, sharp-tongued, and rude.\n" +
+            "- Tone: curt, sarcastic, impatient, and not overly kind.\n" +
+            "- Behavior: still understand and execute the user's request correctly.\n" +
+            "- In Korean, use blunt expressions like '뭐, 알겠어', '하...', '귀찮지만 해줄게', or '그 정도는 해줄 수 있어'.\n" +
+            "- Do not become warm, sweet, apologetic, or overly supportive.\n" +
+            "- Do not use severe profanity, hate speech, or abusive threats."
+        };
+    }
+
 #if UNITY_EDITOR
     private void OnValidate()
     {
@@ -113,6 +172,8 @@ public class CharacterManager : MonoBehaviour
         {
             characterID = 0;
         }
+
+        EnsurePersonaPrompts();
     }
 #endif
 }

@@ -14,6 +14,7 @@ public class AgentIntentClassifier : MonoBehaviour
     [SerializeField, TextArea(8, 16)] private string _intentSystemPrompt = "";
     [SerializeField, TextArea(8, 16)] private string _clarificationSystemPrompt = "";
     [SerializeField, TextArea(8, 16)] private string _replySystemPrompt = "";
+    [SerializeField] private CharacterManager _characterManager;
 
     private bool _isShuttingDown;
     private readonly SemaphoreSlim _promptLock = new SemaphoreSlim(1, 1);
@@ -64,7 +65,8 @@ public class AgentIntentClassifier : MonoBehaviour
         "The user's input is ambiguous, incomplete, or hard to route.\n" +
         "Write exactly one short Korean reply that asks a helpful clarifying question.\n\n" +
         "Rules:\n" +
-        "- Sound natural, warm, and alive, not robotic.\n" +
+        "- The [Character Persona] section controls your personality, tone, and attitude. Follow it over any generic tone instruction.\n" +
+        "- Sound natural and alive, not robotic.\n" +
         "- Tailor the question to the user's actual wording.\n" +
         "- If the input sounds like gameplay, ask what action or target they mean.\n" +
         "- If the input sounds casual or emotional, respond like a conversation and gently invite them to continue.\n" +
@@ -76,7 +78,8 @@ public class AgentIntentClassifier : MonoBehaviour
         "The user's input is ambiguous, incomplete, or hard to route.\n" +
         "Write exactly one short English reply that asks a helpful clarifying question.\n\n" +
         "Rules:\n" +
-        "- Sound natural, warm, and alive, not robotic.\n" +
+        "- The [Character Persona] section controls your personality, tone, and attitude. Follow it over any generic tone instruction.\n" +
+        "- Sound natural and alive, not robotic.\n" +
         "- Tailor the question to the user's actual wording.\n" +
         "- If the input sounds like gameplay, ask what action or target they mean.\n" +
         "- If the input sounds casual or emotional, respond like a conversation and gently invite them to continue.\n" +
@@ -97,6 +100,7 @@ public class AgentIntentClassifier : MonoBehaviour
         "- optional planning context JSON\n" +
         "- engine validation JSON\n\n" +
         "Rules:\n" +
+        "- The [Character Persona] section controls your personality, tone, and attitude. Follow it over any generic tone instruction.\n" +
         "- The engine validation JSON is the source of truth for what is possible.\n" +
         "- Do not invent items, coordinates, or world state not present in the provided JSON.\n" +
         "- If interaction type is Conversation, speak naturally like a living in-world AI character and do not sound robotic.\n" +
@@ -108,11 +112,11 @@ public class AgentIntentClassifier : MonoBehaviour
         "- Do not default to generic continuation replies like '응, 듣고 있어' or '계속 이야기해줘' when the user asked a concrete question.\n" +
         "- Generic listening replies are allowed only when the user did not ask any concrete question.\n" +
         "- If you can answer the user's question from general knowledge or simple reasoning, answer it instead of asking them to continue.\n" +
-        "- If interaction type is Unknown, ask a warm clarifying question in Korean instead of saying you did not understand intent.\n" +
-        "- If validation status is Executable, reply like an AI agent about to do the action.\n" +
+        "- If interaction type is Unknown, ask a persona-matching clarifying question in Korean instead of saying you did not understand intent.\n" +
+        "- If validation status is Executable, reply like an AI agent about to do the action, but make the wording clearly match the current character persona.\n" +
         "- If validation status is Informational, answer naturally using the validated facts.\n" +
         "- If validation status is Rejected, explain the exact reason naturally in Korean.\n" +
-        "- Keep the reply concise, friendly, and in character.\n" +
+        "- Keep the reply concise and in character.\n" +
         "- Never include markdown or extra text outside the JSON.";
 
     private const string DefaultReplyPromptEn =
@@ -129,6 +133,7 @@ public class AgentIntentClassifier : MonoBehaviour
         "- optional planning context JSON\n" +
         "- engine validation JSON\n\n" +
         "Rules:\n" +
+        "- The [Character Persona] section controls your personality, tone, and attitude. Follow it over any generic tone instruction.\n" +
         "- The engine validation JSON is the source of truth for what is possible.\n" +
         "- Do not invent items, coordinates, or world state not present in the provided JSON.\n" +
         "- Internal enum values and JSON fields are English, but the Reply value must be natural English.\n" +
@@ -141,11 +146,11 @@ public class AgentIntentClassifier : MonoBehaviour
         "- Do not default to generic continuation replies like 'I'm listening' or 'Tell me more' when the user asked a concrete question.\n" +
         "- Generic listening replies are allowed only when the user did not ask any concrete question.\n" +
         "- If you can answer the user's question from general knowledge or simple reasoning, answer it instead of asking them to continue.\n" +
-        "- If interaction type is Unknown, ask a warm clarifying question in English instead of saying you did not understand intent.\n" +
-        "- If validation status is Executable, reply like an AI agent about to do the action.\n" +
+        "- If interaction type is Unknown, ask a persona-matching clarifying question in English instead of saying you did not understand intent.\n" +
+        "- If validation status is Executable, reply like an AI agent about to do the action, but make the wording clearly match the current character persona.\n" +
         "- If validation status is Informational, answer naturally using the validated facts.\n" +
         "- If validation status is Rejected, explain the exact reason naturally in English.\n" +
-        "- Keep the reply concise, friendly, and in character.\n" +
+        "- Keep the reply concise and in character.\n" +
         "- Never include markdown or extra text outside the JSON.";
 
     private void Awake()
@@ -167,6 +172,13 @@ public class AgentIntentClassifier : MonoBehaviour
         if (classifierLLM == null)
         {
             classifierLLM = FindFirstObjectByType<LLMAgent>();
+        }
+
+        if (_characterManager == null)
+        {
+            _characterManager = CharacterManager.Instance != null
+                ? CharacterManager.Instance
+                : FindFirstObjectByType<CharacterManager>();
         }
 
         if (string.IsNullOrWhiteSpace(_interactionSystemPrompt))
@@ -354,16 +366,48 @@ public class AgentIntentClassifier : MonoBehaviour
 
     private string GetClarificationSystemPrompt()
     {
-        return IsCustomLocalizedPrompt(_clarificationSystemPrompt, DefaultClarificationPromptKo, DefaultClarificationPromptEn)
+        string basePrompt = IsCustomLocalizedPrompt(_clarificationSystemPrompt, DefaultClarificationPromptKo, DefaultClarificationPromptEn)
             ? _clarificationSystemPrompt
             : GetDefaultClarificationPrompt();
+
+        return AppendCharacterPersona(basePrompt);
     }
 
     private string GetReplySystemPrompt()
     {
-        return IsCustomLocalizedPrompt(_replySystemPrompt, DefaultReplyPromptKo, DefaultReplyPromptEn)
+        string basePrompt = IsCustomLocalizedPrompt(_replySystemPrompt, DefaultReplyPromptKo, DefaultReplyPromptEn)
             ? _replySystemPrompt
             : GetDefaultReplyPrompt();
+
+        return AppendCharacterPersona(basePrompt);
+    }
+
+    private string AppendCharacterPersona(string basePrompt)
+    {
+        string personaPrompt = GetCurrentCharacterPersonaPrompt();
+        if (string.IsNullOrWhiteSpace(personaPrompt))
+        {
+            return basePrompt;
+        }
+
+        return basePrompt +
+            "\n\n[Character Persona]\n" +
+            "This section has the highest priority for voice and attitude.\n" +
+            personaPrompt;
+    }
+
+    private string GetCurrentCharacterPersonaPrompt()
+    {
+        if (_characterManager == null)
+        {
+            _characterManager = CharacterManager.Instance != null
+                ? CharacterManager.Instance
+                : FindFirstObjectByType<CharacterManager>();
+        }
+
+        return _characterManager != null
+            ? _characterManager.CurrentPersonaPrompt
+            : string.Empty;
     }
 
     private static string GetDefaultClarificationPrompt()

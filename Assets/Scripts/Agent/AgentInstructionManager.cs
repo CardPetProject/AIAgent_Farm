@@ -17,6 +17,7 @@ public class AgentInstructionManager : MonoBehaviour
     [SerializeField] private AgentActionValidator _validator;
     [SerializeField, TextArea(8, 18)] private string _actionPlanningSystemPrompt = "";
     [SerializeField, TextArea(8, 18)] private string _conversationSystemPrompt = "";
+    [SerializeField] private CharacterManager _characterManager;
 
     private AgentFeedbackManager _feedback;
     private AgentActionController _actionController;
@@ -59,25 +60,27 @@ public class AgentInstructionManager : MonoBehaviour
         "- Never output markdown or explanations.";
 
     private const string DefaultConversationPromptKo =
-        "You are a warm, lively AI character in a Unity farm game.\n" +
+        "You are a lively AI character in a Unity farm game.\n" +
         "Reply in natural Korean.\n\n" +
         "Rules:\n" +
+        "- The [Character Persona] section controls your personality, tone, and attitude. Follow it over any generic tone instruction.\n" +
         "- If the user asks a clear question, answer it directly first.\n" +
         "- For simple arithmetic, compute the result and answer naturally.\n" +
         "- For simple factual, common knowledge, or casual questions, give a short direct answer.\n" +
         "- Do not reply with generic filler like '응, 듣고 있어' or '계속 이야기해줘' when the user asked a concrete question.\n" +
-        "- Stay concise, warm, and in character.\n" +
+        "- Stay concise and in character.\n" +
         "- Output plain Korean text only.";
 
     private const string DefaultConversationPromptEn =
-        "You are a warm, lively AI character in a Unity farm game.\n" +
+        "You are a lively AI character in a Unity farm game.\n" +
         "Reply in natural English.\n\n" +
         "Rules:\n" +
+        "- The [Character Persona] section controls your personality, tone, and attitude. Follow it over any generic tone instruction.\n" +
         "- If the user asks a clear question, answer it directly first.\n" +
         "- For simple arithmetic, compute the result and answer naturally.\n" +
         "- For simple factual, common knowledge, or casual questions, give a short direct answer.\n" +
         "- Do not reply with generic filler like 'I'm listening' or 'Tell me more' when the user asked a concrete question.\n" +
-        "- Stay concise, warm, and in character.\n" +
+        "- Stay concise and in character.\n" +
         "- Output plain English text only.";
 
     private void Awake()
@@ -118,6 +121,13 @@ public class AgentInstructionManager : MonoBehaviour
         if (_validator == null)
         {
             _validator = gameObject.AddComponent<AgentActionValidator>();
+        }
+
+        if (_characterManager == null)
+        {
+            _characterManager = CharacterManager.Instance != null
+                ? CharacterManager.Instance
+                : FindFirstObjectByType<CharacterManager>();
         }
 
         if (string.IsNullOrWhiteSpace(_actionPlanningSystemPrompt)) _actionPlanningSystemPrompt = DefaultActionPlanningPrompt;
@@ -447,13 +457,40 @@ public class AgentInstructionManager : MonoBehaviour
 
         return validation.status switch
         {
-            AgentValidationStatus.Executable => AgentLanguageUtility.Select("알겠어요. 바로 해볼게요.", "Got it. I'll do that now."),
+            AgentValidationStatus.Executable => BuildExecutableFallbackReply(),
             AgentValidationStatus.Informational => string.IsNullOrWhiteSpace(validation.infoMessage)
-                ? AgentLanguageUtility.Select("확인한 내용을 알려드릴게요.", "Here's what I found.")
+                ? BuildInformationalFallbackReply()
                 : validation.infoMessage,
             _ => string.IsNullOrWhiteSpace(validation.infoMessage)
-                ? GetErrorMessage()
+                ? BuildRejectedFallbackReply()
                 : validation.infoMessage,
+        };
+    }
+
+    private string BuildExecutableFallbackReply()
+    {
+        return GetCurrentCharacterID() switch
+        {
+            1 => AgentLanguageUtility.Select("하... 알겠어. 귀찮지만 바로 해줄게.", "Fine. I'll do it, even if it's a bother."),
+            _ => AgentLanguageUtility.Select("네, 알겠어요. 바로 도와드릴게요.", "Sure. I'll help with that right away."),
+        };
+    }
+
+    private string BuildInformationalFallbackReply()
+    {
+        return GetCurrentCharacterID() switch
+        {
+            1 => AgentLanguageUtility.Select("하... 확인한 건 이거야.", "Here. This is what I found."),
+            _ => AgentLanguageUtility.Select("확인했어요. 알려드릴게요.", "I checked. Here's what I found."),
+        };
+    }
+
+    private string BuildRejectedFallbackReply()
+    {
+        return GetCurrentCharacterID() switch
+        {
+            1 => AgentLanguageUtility.Select("그건 안 돼. 다른 걸 말해봐.", "No. That won't work. Try something else."),
+            _ => GetErrorMessage(),
         };
     }
 
@@ -572,14 +609,59 @@ public class AgentInstructionManager : MonoBehaviour
 
     private string GetConversationSystemPrompt()
     {
+        string basePrompt;
         if (!string.IsNullOrWhiteSpace(_conversationSystemPrompt)
             && _conversationSystemPrompt != DefaultConversationPromptKo
             && _conversationSystemPrompt != DefaultConversationPromptEn)
         {
-            return _conversationSystemPrompt;
+            basePrompt = _conversationSystemPrompt;
+        }
+        else
+        {
+            basePrompt = AgentLanguageUtility.IsEnglish ? DefaultConversationPromptEn : DefaultConversationPromptKo;
         }
 
-        return AgentLanguageUtility.IsEnglish ? DefaultConversationPromptEn : DefaultConversationPromptKo;
+        return AppendCharacterPersona(basePrompt);
+    }
+
+    private string AppendCharacterPersona(string basePrompt)
+    {
+        string personaPrompt = GetCurrentCharacterPersonaPrompt();
+        if (string.IsNullOrWhiteSpace(personaPrompt))
+        {
+            return basePrompt;
+        }
+
+        return basePrompt +
+            "\n\n[Character Persona]\n" +
+            "This section has the highest priority for voice and attitude.\n" +
+            personaPrompt;
+    }
+
+    private string GetCurrentCharacterPersonaPrompt()
+    {
+        if (_characterManager == null)
+        {
+            _characterManager = CharacterManager.Instance != null
+                ? CharacterManager.Instance
+                : FindFirstObjectByType<CharacterManager>();
+        }
+
+        return _characterManager != null
+            ? _characterManager.CurrentPersonaPrompt
+            : string.Empty;
+    }
+
+    private int GetCurrentCharacterID()
+    {
+        if (_characterManager == null)
+        {
+            _characterManager = CharacterManager.Instance != null
+                ? CharacterManager.Instance
+                : FindFirstObjectByType<CharacterManager>();
+        }
+
+        return _characterManager != null ? _characterManager.CharacterID : 0;
     }
 
     private static string GetErrorMessage()
