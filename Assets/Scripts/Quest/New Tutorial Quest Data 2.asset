@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6b7c80772f7d4a7d8b689594c0dcb30, type: 3}
+  m_Name: New Tutorial Quest Data 2
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialQuestData
+  questId: 2
+  title_kr: "\uD29C\uD1A0\uB9AC\uC5BC 3"
+  description_kr: "\uB2F9\uADFC \uC2EC\uAE30"
+  title_eng: Tutorial 3
+  description_eng: Plant carrot
+  questType: 1
+  targetId: Carrot
+  requiredProgress: 1
+  rewardGold: 500

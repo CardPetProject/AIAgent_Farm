@@ -15,6 +15,7 @@ public class GameStateAssembler : MonoBehaviour
     [SerializeField] private GoldManager goldManager;
     [SerializeField] private TileManager tileManager;
     [SerializeField] private CharacterManager characterManager;
+    [SerializeField] private QuestManager questManager;
 
     // 버튼 테스트용 메서드.
     // 현재 스냅샷을 JSON 파일로 저장하고 요약 정보를 콘솔에 출력한다.
@@ -124,6 +125,11 @@ public class GameStateAssembler : MonoBehaviour
                 ? CharacterManager.Instance
                 : FindFirstObjectByType<CharacterManager>();
         }
+
+        if (questManager == null)
+        {
+            questManager = FindFirstObjectByType<QuestManager>(FindObjectsInactive.Include);
+        }
     }
 
     public void SaveData()
@@ -186,7 +192,7 @@ public class GameStateAssembler : MonoBehaviour
 
                 if (!response.hasSnapshot)
                 {
-                    ApplyDefaultState();
+                    ApplyDefaultState(false);
                     Debug.Log($"GetData result | hasSnapshot: false | message: {response.message}", this);
                     onNewStart?.Invoke();
                     return;
@@ -213,7 +219,7 @@ public class GameStateAssembler : MonoBehaviour
             middleDB.SetGuaranteedStartCoord(new Vector2Int(7, 4));
         }
 
-        ApplyDefaultState();
+        ApplyDefaultState(true);
     }
 
     // 현재 게임 상태를 서버에 보내기 쉬운 형태의 스냅샷으로 묶는다.
@@ -229,7 +235,8 @@ public class GameStateAssembler : MonoBehaviour
             farmLevel = BuildFarmLevel(),
             farmNowExp = BuildFarmNowExp(),
             gold = BuildGold(),
-            characterID = BuildCharacterID()
+            characterID = BuildCharacterID(),
+            quest = BuildQuest()
         };
     }
 
@@ -364,6 +371,22 @@ public class GameStateAssembler : MonoBehaviour
         return Mathf.Max(0, characterManager.CharacterID);
     }
 
+    private QuestStateDto BuildQuest()
+    {
+        if (questManager == null)
+        {
+            questManager = FindFirstObjectByType<QuestManager>(FindObjectsInactive.Include);
+        }
+
+        if (questManager == null)
+        {
+            Debug.LogWarning("[GameStateAssembler] QuestManager reference is missing.", this);
+            return null;
+        }
+
+        return questManager.CreateState();
+    }
+
     private string GetDefaultUserId()
     {
         PlayerId playerId = NetworkManager.Instance.GetPlayerId();
@@ -419,6 +442,18 @@ public class GameStateAssembler : MonoBehaviour
         {
             error = "characterID must be 0 or greater.";
             return false;
+        }
+
+        if (snapshot.quest != null)
+        {
+            if (snapshot.quest.currentQuestIndex < 0
+                || snapshot.quest.currentQuestID < 0
+                || snapshot.quest.currentQuestProgressNow < 0
+                || snapshot.quest.currentQuestProgressMax < 0)
+            {
+                error = "quest has invalid values.";
+                return false;
+            }
         }
 
         if (snapshot.inventory == null)
@@ -522,6 +557,7 @@ public class GameStateAssembler : MonoBehaviour
             farmLevel = snapshot.farmLevel,
             farmNowExp = snapshot.farmNowExp,
             characterID = snapshot.characterID,
+            quest = snapshot.quest,
             tiles = snapshot.tiles,
             inventory = snapshot.inventory
         };
@@ -570,9 +606,11 @@ public class GameStateAssembler : MonoBehaviour
         {
             characterManager.SetCharacterID(Mathf.Max(0, response.characterID));
         }
+
+        ApplyQuestState(response.quest);
     }
 
-    private void ApplyDefaultState()
+    private void ApplyDefaultState(bool activateQuest)
     {
         // 저장본이 없을 때 새 게임 시작 전의 기본 상태를 맞춰 둔다.
         if (middleDB != null)
@@ -610,6 +648,32 @@ public class GameStateAssembler : MonoBehaviour
         {
             characterManager.SetCharacterID(0);
         }
+
+        if (activateQuest)
+        {
+            ApplyQuestState(null);
+        }
+    }
+
+    private void ApplyQuestState(QuestStateDto state)
+    {
+        if (questManager == null)
+        {
+            questManager = FindFirstObjectByType<QuestManager>(FindObjectsInactive.Include);
+        }
+
+        if (questManager == null)
+        {
+            Debug.LogWarning("[GameStateAssembler] QuestManager reference is missing. Quest UI cannot be activated.", this);
+            return;
+        }
+
+        if (!questManager.gameObject.activeSelf)
+        {
+            questManager.gameObject.SetActive(true);
+        }
+
+        questManager.InitializeFromBackend(state);
     }
 }
 
@@ -626,6 +690,7 @@ public class GameStateSnapshot
     public int farmNowExp;
     public int gold;
     public int characterID;
+    public QuestStateDto quest;
 }
 
 [Serializable]
@@ -665,6 +730,7 @@ public class SnapshotUploadResponse
     public int farmNowExp;
     public int gold;
     public int characterID;
+    public QuestStateDto quest;
     public int tileCount;
     public int inventoryCount;
     public string savedAt;

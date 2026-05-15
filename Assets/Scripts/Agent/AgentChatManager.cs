@@ -49,11 +49,16 @@ public class AgentChatManager : MonoBehaviour
     [SerializeField] private Transform _chatHistory;
     [SerializeField] private GameObject _chatBoxAgent;
     [SerializeField] private GameObject _chatBoxPlayer;
+    [SerializeField] private QuestManager _questManager;
 
     private void Awake()
     {
         _instructionMng = GetComponent<AgentInstructionManager>();
         _llmController = GetComponent<LLM>();
+        if (_questManager == null)
+        {
+            _questManager = FindFirstObjectByType<QuestManager>();
+        }
 
        // Debug.Log(SystemInfo.operatingSystem);
      
@@ -81,6 +86,16 @@ public class AgentChatManager : MonoBehaviour
         if (!TokenManager.Instance.TrySpendQuestionToken())
         {
             return;
+        }
+
+        ResolveQuestManager();
+        if (_questManager != null)
+        {
+            _questManager.ReportChat();
+        }
+        else
+        {
+            Debug.LogWarning("[AgentChatManager] QuestManager reference is missing. Chat quest progress was not reported.", this);
         }
 
         GameObject playerChatBox = Instantiate(_chatBoxPlayer, _chatHistory);
@@ -122,5 +137,15 @@ public class AgentChatManager : MonoBehaviour
             _inputField.ActivateInputField();
             _inputField.Select();
         }
+    }
+
+    private void ResolveQuestManager()
+    {
+        if (_questManager != null)
+        {
+            return;
+        }
+
+        _questManager = FindFirstObjectByType<QuestManager>();
     }
 }
