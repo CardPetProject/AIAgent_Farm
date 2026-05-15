@@ -79,6 +79,18 @@ MonoBehaviour:
     m_Localized: Start
     m_Metadata:
       m_Items: []
+  - m_Id: 3969214476967936
+    m_Localized: Your account has been banned
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3969735858315264
+    m_Localized: Reason
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3969817282338816
+    m_Localized: Date
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

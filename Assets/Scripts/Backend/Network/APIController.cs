@@ -114,6 +114,22 @@ public static class APIController
         }
     }
 
+    public static class Notice
+    {
+        public static void GetLatest(Action<NoticeResponse> onSuccess, Action<string> onError = null)
+        {
+            // 공지사항은 인증 없이 조회한다.
+            NetworkManager.Instance.Get<NoticeResponse>(
+                urlFactory: () => APIConfig.Notice.Latest,
+                onSuccess,
+                onError ?? (errorMsg =>
+                {
+                    Debug.LogError($"공지사항 조회 실패: {errorMsg}");
+                })
+            );
+        }
+    }
+
     //public static class Farm
     //{
     //    public static void SaveFarmState(FarmData data, Action<ServerResponse> onSuccess) { ... }
@@ -142,6 +158,22 @@ public class SteamAuthResponse
     public string steamId;
     public string displayName;
     public string sessionId;
+    public bool canPlay = true;
+    public SanctionInfo sanction;
+}
+
+[Serializable]
+public class SanctionInfo
+{
+    public string reason;
+    public string endsAt;
+}
+
+[Serializable]
+public class NoticeResponse
+{
+    public string title;
+    public string content;
 }
 
 [Serializable]
@@ -162,6 +194,8 @@ public class GameSnapshotSaveRequest
     public int gold;
     public int farmLevel;
     public int farmNowExp;
+    public int characterID;
+    public QuestStateDto quest;
     public TileStateDto[] tiles;
     public InventoryItemDto[] inventory;
 }
@@ -179,6 +213,8 @@ public class LatestSnapshotResponse
     public int gold;
     public int farmLevel;
     public int farmNowExp;
+    public int characterID;
+    public QuestStateDto quest;
     public int slotId;
     public string savedAt;
     public string message;

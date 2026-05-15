@@ -27,6 +27,7 @@ public class TileInfoPanel : MonoBehaviour
     [SerializeField] private MiddleDB middleDB;
     [SerializeField] private TileManager tileManager;
     [SerializeField] private InventoryManager inventoryManager;
+    [SerializeField] private QuestManager questManager;
     [SerializeField] private Sprite weedPanelSprite;
     [SerializeField] private Transform plusInfoLayer;
     [SerializeField] private TileInfo_Plus tileInfoPlusPrefab;
@@ -51,6 +52,11 @@ public class TileInfoPanel : MonoBehaviour
         if (inventoryManager == null)
         {
             inventoryManager = FindFirstObjectByType<InventoryManager>();
+        }
+
+        if (questManager == null)
+        {
+            questManager = FindFirstObjectByType<QuestManager>();
         }
     }
 
@@ -181,6 +187,7 @@ public class TileInfoPanel : MonoBehaviour
             return;
         }
 
+        questManager?.ReportPlant(cropsData.crop.ToString());
         OnClickTileInfoPanel(cacheID);
     }
     // 패널이 열려 있는 동안 성장 진행도, 남은 시간, 수확 가능 여부를 실시간으로 반영한다.
@@ -342,6 +349,7 @@ public class TileInfoPanel : MonoBehaviour
             return;
         }
 
+        questManager?.ReportHarvest(state.cropType.ToString());
         OnClickTileInfoPanel(cacheID);
         inventoryManager.LogInventory();
     }

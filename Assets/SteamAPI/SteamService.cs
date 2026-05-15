@@ -23,6 +23,8 @@ public class SteamService : MonoBehaviour
     public string SteamId { get; private set; } = string.Empty;
     public string PersonaName { get; private set; } = string.Empty;
     public string LastWebApiTicketHex { get; private set; } = string.Empty;
+    public bool IsPlayBlocked { get; private set; }
+    public SanctionInfo LastSanction { get; private set; }
     public bool IsSteamRuntimeAvailable
     {
         get
@@ -120,6 +122,8 @@ public class SteamService : MonoBehaviour
 
         pendingWebApiIdentity = resolvedIdentity;
         LastWebApiTicketHex = string.Empty;
+        IsPlayBlocked = false;
+        LastSanction = null;
         activeWebApiTicket = SteamUser.GetAuthTicketForWebApi(resolvedIdentity);
 
         if (activeWebApiTicket == HAuthTicket.Invalid)
@@ -286,6 +290,21 @@ public class SteamService : MonoBehaviour
                     return;
                 }
 
+                if (!response.canPlay)
+                {
+                    IsPlayBlocked = true;
+                    LastSanction = response.sanction;
+                    NetworkManager.Instance.SetAccessToken(string.Empty);
+                    NetworkManager.Instance.SetSessionId(string.Empty);
+                    ShowBanScreen(LastSanction);
+                    Debug.LogWarning(
+                        $"Steam backend login blocked by sanction. reason={response.sanction?.reason}, endsAt={response.sanction?.endsAt}");
+                    return;
+                }
+
+                IsPlayBlocked = false;
+                LastSanction = null;
+
                 if (string.IsNullOrWhiteSpace(response.accessToken))
                 {
                     Debug.LogError("Steam backend login succeeded but accessToken was empty.");
@@ -318,5 +337,23 @@ public class SteamService : MonoBehaviour
                 Debug.LogError($"Steam backend login failed: {error}");
             });
     }
+
 #endif
+
+    public void ShowLastBanScreen()
+    {
+        ShowBanScreen(LastSanction);
+    }
+
+    private static void ShowBanScreen(SanctionInfo sanction)
+    {
+        BanManager banManager = FindFirstObjectByType<BanManager>(FindObjectsInactive.Include);
+        if (banManager == null)
+        {
+            Debug.LogError("Banned user detected, but BanManager could not be found in the scene.");
+            return;
+        }
+
+        banManager.Init(sanction?.reason, sanction?.endsAt);
+    }
 }

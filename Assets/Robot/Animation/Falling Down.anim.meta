@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e99ba23597216bb4684a452e8a87819b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 299631
+  packageName: Robot 2d Animated Character (Spriter)
+  packageVersion: 1.0.0.1
+  assetPath: Assets/Robot/Animation/Falling Down.anim
+  uploadId: 701038

@@ -91,6 +91,8 @@ public class AgentActionController : MonoBehaviour
     int _lineSortingBaseOrder = 11;
     [SerializeField]
     TokenManager _tokenMng;
+    [SerializeField]
+    QuestManager _questMng;
 
     Animator _ani;
 
@@ -108,6 +110,11 @@ public class AgentActionController : MonoBehaviour
         _agentScale = _agent.localScale;
         _agentOffset = _agent.parent;
         _pathFinder = _agentOffset.GetComponent<AgentPathFinder>();
+        if (_questMng == null)
+        {
+            _questMng = FindFirstObjectByType<QuestManager>();
+        }
+
         AstarPath.active.Scan();
         CacheAgentRenderers();
         UpdateCharacterSorting();
@@ -250,6 +257,24 @@ public class AgentActionController : MonoBehaviour
 
             _agentOffset.position = targetWorldPos;
             ChangeState(AgentState.Idle);
+            ReportMoveQuestProgress();
+        }
+    }
+
+    private void ReportMoveQuestProgress()
+    {
+        if (_questMng == null)
+        {
+            _questMng = FindFirstObjectByType<QuestManager>();
+        }
+
+        if (_questMng != null)
+        {
+            _questMng.ReportMove();
+        }
+        else
+        {
+            Debug.LogWarning("[AgentActionController] QuestManager reference is missing. Move quest progress was not reported.", this);
         }
     }
 
@@ -284,13 +309,22 @@ public class AgentActionController : MonoBehaviour
         if (!success)
         {
             _inventoryMng.AddItem(_inventoryMng.GetItemSoWithName(seedName));
+            yield break;
         }
+
+        _questMng?.ReportPlant(cType.ToString());
     }
 
     private IEnumerator HarvestRoutine(Vector2Int targetPos)
     {
         ChangeState(AgentState.Work);
         ResetDirection();
+        string harvestedTargetId = string.Empty;
+
+        if (_tileMng.TryGetTile(targetPos, out TileData tile) && tile != null)
+        {
+            harvestedTargetId = tile.cropType.ToString();
+        }
 
         if (_processUI != null)
             yield return StartCoroutine(_processUI.ProcessTaskRoutine("Harvesting", 2f));
@@ -298,6 +332,12 @@ public class AgentActionController : MonoBehaviour
             yield return new WaitForSeconds(2f);
 
         bool success = _tileMng.HarvestCrop(targetPos, _inventoryMng);
+        if (!success)
+        {
+            yield break;
+        }
+
+        _questMng?.ReportHarvest(harvestedTargetId);
     }
 
     private IEnumerator EatRoutine(TileData.CropType cType)

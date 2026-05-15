@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a84d0fd8d52abe540b61d0b406afc133
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 299631
+  packageName: Robot 2d Animated Character (Spriter)
+  packageVersion: 1.0.0.1
+  assetPath: Assets/Robot/Animation/Hurt.anim
+  uploadId: 701038

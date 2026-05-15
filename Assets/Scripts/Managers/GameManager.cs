@@ -57,6 +57,12 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        if (SteamService.Instance != null && SteamService.Instance.IsPlayBlocked)
+        {
+            SteamService.Instance.ShowLastBanScreen();
+            return;
+        }
+
         if (Application.isEditor)
         {
             NewStart();

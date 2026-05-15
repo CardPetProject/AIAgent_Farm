@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 380d3babac8f74bb3b53ab9f813063cd
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 299631
+  packageName: Robot 2d Animated Character (Spriter)
+  packageVersion: 1.0.0.1
+  assetPath: Assets/Robot/DemoScene.unity
+  uploadId: 701038
