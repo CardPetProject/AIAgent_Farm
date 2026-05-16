@@ -176,6 +176,7 @@ public class ScreenConfigController : MonoBehaviour
 
     public void SetResolutionByIndex(int index)
     {
+        AudioManager.Instance.PlaySFX(SfxType.Click);
         if (index < 0 || index >= _filteredResolutions.Count) return;
 
         Resolution targetRes = _filteredResolutions[index];
@@ -192,6 +193,7 @@ public class ScreenConfigController : MonoBehaviour
 
     public void SetScreenModeByIndex(int index)
     {
+        AudioManager.Instance.PlaySFX(SfxType.Click);
         FullScreenMode mode = index switch
         {
             1 => FullScreenMode.ExclusiveFullScreen,

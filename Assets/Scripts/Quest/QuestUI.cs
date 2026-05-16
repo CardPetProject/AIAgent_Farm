@@ -91,16 +91,23 @@ public class QuestUI : MonoBehaviour
         {
             gem_Count.text = quest.RewardGold.ToString();
         }
+
+        if(isClear)
+        {
+            AudioManager.Instance.PlaySFX(SfxType.Success);
+        }
     }
 
     public void OnClickQuestButton()
     {
+        AudioManager.Instance.PlaySFX(SfxType.Click);
         questManager?.TryClaimCurrentQuestReward();
     }
 
     public void Hide()
     {
         gameObject.SetActive(false);
+        // AudioManager.Instance.PlaySFX(SfxType.Click);
     }
 
     private void HandleSelectedLocaleChanged(Locale locale)

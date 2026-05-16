@@ -19,6 +19,7 @@ public class NoticeManager : MonoBehaviour
     public void LoadAndOpen()
     {
         gameObject.SetActive(true);
+        AudioManager.Instance.PlaySFX(SfxType.Click);
 
         APIController.Notice.GetLatest(
             onSuccess: Init,
@@ -61,5 +62,6 @@ public class NoticeManager : MonoBehaviour
     public void Close()
     {
         gameObject.SetActive(false);
+        AudioManager.Instance.PlaySFX(SfxType.Click);
     }
 }

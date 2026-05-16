@@ -22,6 +22,12 @@ public class NewStartUI : MonoBehaviour
 
     public void WorldResetRandombuton()
     {
+        AudioManager.Instance.PlaySFX(SfxType.Click);
+        WorldResetRandombutonWithoutSFX();
+    }
+
+    void WorldResetRandombutonWithoutSFX()
+    {
         worldseed = Random.Range(1, int.MaxValue);
         ApplySeedToUI(worldseed);
     }
@@ -40,9 +46,10 @@ public class NewStartUI : MonoBehaviour
 
     public void CallGameInit()
     {
+        AudioManager.Instance.PlaySFX(SfxType.Click);
         if (!TryReadSeedFromUI(out int parsedSeed))
         {
-            WorldResetRandombuton();
+            WorldResetRandombutonWithoutSFX();
             parsedSeed = worldseed;
         }
 
@@ -68,9 +75,16 @@ public class NewStartUI : MonoBehaviour
         _gameManager = gameManager;
         gameObject.SetActive(true);
         FirstInit();
+        AudioManager.Instance.PlaySFX(SfxType.Click);
     }
 
     public void Close()
+    {
+        CloseWithoutSFX();
+        AudioManager.Instance.PlaySFX(SfxType.Click);
+    }
+
+    public void CloseWithoutSFX()
     {
         gameObject.SetActive(false);
     }

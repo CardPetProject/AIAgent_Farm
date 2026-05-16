@@ -90,6 +90,7 @@ public class ShopContent : MonoBehaviour
 
     public void BuyButton()
     {
+        AudioManager.Instance.PlaySFX(SfxType.Store1);
         if (_item == null)
         {
             Debug.LogWarning("[ShopContent] Buy failed: item is null.", this);

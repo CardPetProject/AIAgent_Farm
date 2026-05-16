@@ -163,6 +163,7 @@ public class AgentInstructionManager : MonoBehaviour
 
         string answer = HandleResponse(input, response);
         chatBox.SetText(answer);
+        AudioManager.Instance.PlaySFX(SfxType.Chat);
         stopwatch.Stop();
         LogStageTiming("HandleUserInput.Total", stopwatch.ElapsedMilliseconds, input);
     }

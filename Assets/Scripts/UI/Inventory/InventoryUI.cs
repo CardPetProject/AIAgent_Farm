@@ -98,7 +98,8 @@ public class InventoryUI : MonoBehaviour
 
     public void OnFocusSlot(InventorySlotUI clickedSlot)
     {
-        if (_focusedSlot == clickedSlot) return; // Unity에서는 오버로딩된 == 연산자 사용이 안전함
+        AudioManager.Instance.PlaySFX(SfxType.Click);
+        if (_focusedSlot == clickedSlot) return;
 
         if (_focusedSlot != null)
             _focusedSlot.UnfocusSlot();

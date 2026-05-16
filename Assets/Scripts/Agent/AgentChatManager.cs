@@ -74,6 +74,7 @@ public class AgentChatManager : MonoBehaviour
 
     private void SubmitInput(string input)
     {
+        AudioManager.Instance.PlaySFX(SfxType.Chat);
         _inputField.text = "";
         _inputField.ActivateInputField();
         _inputField.Select();

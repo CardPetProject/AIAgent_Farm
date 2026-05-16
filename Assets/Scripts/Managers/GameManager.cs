@@ -102,7 +102,7 @@ public class GameManager : MonoBehaviour
     {
         if (newStartUI != null)
         {
-            newStartUI.Close();
+            newStartUI.CloseWithoutSFX();
         }
 
         ResetPlayerToStartTile();
@@ -130,7 +130,7 @@ public class GameManager : MonoBehaviour
     {
         if (newStartUI != null)
         {
-            newStartUI.Close();
+            newStartUI.CloseWithoutSFX();
         }
 
         userInfo.CloseUI();

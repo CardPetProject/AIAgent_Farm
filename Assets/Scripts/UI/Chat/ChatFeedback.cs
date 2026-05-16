@@ -87,6 +87,7 @@ public class ChatFeedback : MonoBehaviour
 
     public void OnButtonClick(int flag)
     {
+        if (flag != 0) AudioManager.Instance.PlaySFX(SfxType.Click);
         if(_chat != null) _chat.flag = flag;
         //if (flag == 1)
         //{

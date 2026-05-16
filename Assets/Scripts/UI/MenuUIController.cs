@@ -1,8 +1,6 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class MenuUIManager : MonoBehaviour
@@ -32,6 +30,7 @@ public class MenuUIManager : MonoBehaviour
         if (ui.anchoredPosition.x > 0f) openUI(ui);
         else closeUI(ui);
         _prevActiveUI = ui;
+        AudioManager.Instance.PlaySFX(SfxType.Click);
     }
 
     void openUI(RectTransform ui)
@@ -90,6 +89,7 @@ public class MenuUIManager : MonoBehaviour
         Time.timeScale = 0f;
         // AudioListener.pause = true;
         openUI(ui);
+        AudioManager.Instance.PlaySFX(SfxType.Click);
     }
 
     public void OnClickResumeGame(RectTransform ui)
@@ -97,6 +97,7 @@ public class MenuUIManager : MonoBehaviour
         Time.timeScale = 1f;
         // AudioListener.pause = false;
         closeUI(ui); 
+        AudioManager.Instance.PlaySFX(SfxType.Click);
     }
 
     public void OnClickOpenSettingWindow(bool isLogo)
@@ -104,16 +105,18 @@ public class MenuUIManager : MonoBehaviour
         if (isLogo && _settingWindowBg.color.a != _settingBgColorEnable.a) _settingWindowBg.color = _settingBgColorEnable;
         else if (!isLogo && _settingWindowBg.color.a != _settingBgColorDisable.a) _settingWindowBg.color = _settingBgColorDisable;
         openUI(_settingWindow);
+        AudioManager.Instance.PlaySFX(SfxType.Click);
     }
 
     public void OnClickCloseSettingWindow()
     {
         closeUI(_settingWindow);
+        AudioManager.Instance.PlaySFX(SfxType.Click);
     }
     
     public void OnClickReturnMenu()
     {
-        //SceneManager.LoadScene(1);
         if (_prevActiveUI != null) closeUI(_prevActiveUI);
+        AudioManager.Instance.PlaySFX(SfxType.Click);
     }
 }
