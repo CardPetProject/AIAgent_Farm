@@ -17,6 +17,7 @@ public enum SfxType
     Click,
     Store0,
     Store1,
+    Success,
 }
 
 [System.Serializable]

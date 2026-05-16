@@ -98,6 +98,7 @@ public class InventoryUI : MonoBehaviour
 
     public void OnFocusSlot(InventorySlotUI clickedSlot)
     {
+        AudioManager.Instance.PlaySFX(SfxType.Click);
         if (_focusedSlot == clickedSlot) return;
 
         if (_focusedSlot != null)

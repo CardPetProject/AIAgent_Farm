@@ -2,9 +2,10 @@ using UnityEngine;
 
 public class AnimatorAudioController : MonoBehaviour
 {
+    bool _isWorking = false;
     public void PlayRobotEffect()
     {
-        AudioManager.Instance.PlaySFX(SfxType.RobotEffect);
+        if(_isWorking) AudioManager.Instance.PlaySFX(SfxType.RobotEffect);
     }
 
     public void PlayWalkEffect()
@@ -18,5 +19,16 @@ public class AnimatorAudioController : MonoBehaviour
         {
             AudioManager.Instance.PlaySFX(SfxType.Walk1);
         }
+    }
+
+    public void SetWorkFlag(bool isWorking)
+    {
+        _isWorking = isWorking;
+    }
+
+    public void PlayWorkEffect() 
+    {
+        if(_isWorking) AudioManager.Instance.PlaySFX(SfxType.Plant_Harvest);
+        else AudioManager.Instance.PlaySFX(SfxType.Bite);
     }
 }

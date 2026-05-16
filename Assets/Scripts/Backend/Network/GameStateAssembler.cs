@@ -132,6 +132,12 @@ public class GameStateAssembler : MonoBehaviour
         }
     }
 
+    public void OnClickSaveButton()
+    {
+        SaveData();
+        AudioManager.Instance.PlaySFX(SfxType.Click);
+    }
+
     public void SaveData()
     {
         // 에디터에서는 실서버 저장을 막고, 실제 로그인된 빌드에서만 저장한다.
@@ -604,7 +610,7 @@ public class GameStateAssembler : MonoBehaviour
 
         if (characterManager != null)
         {
-            characterManager.SetCharacterID(Mathf.Max(0, response.characterID));
+            characterManager.SetCharacterIDWithoutSFX(Mathf.Max(0, response.characterID));
         }
 
         ApplyQuestState(response.quest);
@@ -646,7 +652,7 @@ public class GameStateAssembler : MonoBehaviour
 
         if (characterManager != null)
         {
-            characterManager.SetCharacterID(0);
+            characterManager.SetCharacterIDWithoutSFX(0);
         }
 
         if (activateQuest)

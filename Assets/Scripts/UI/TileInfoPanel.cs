@@ -73,7 +73,7 @@ public class TileInfoPanel : MonoBehaviour
     private void Start()
     {
         ClearPanel();
-        ClosePanel();
+        InitPanel();
         SetHarvestButton(false);
     }
     private void Update()
@@ -315,6 +315,7 @@ public class TileInfoPanel : MonoBehaviour
     // 현재 선택된 타일의 작물을 수확하고 인벤토리에 지급한다.
     public void OnClickHarvestButton()
     {
+        // AudioManager.Instance.PlaySFX(SfxType.Click);
         if (tileManager == null)
         {
             tileManager = FindFirstObjectByType<TileManager>();
@@ -359,10 +360,17 @@ public class TileInfoPanel : MonoBehaviour
     {
         IsOpen = true;
         SetPanelY(OpenY);
+        AudioManager.Instance.PlaySFX(SfxType.Click);
     }
 
     // 패널을 화면 밖으로 이동시켜 숨긴다.
     public void ClosePanel()
+    {
+        InitPanel();
+        AudioManager.Instance.PlaySFX(SfxType.Click);
+    }
+
+    void InitPanel()
     {
         IsOpen = false;
         SetPanelY(ClosedY);

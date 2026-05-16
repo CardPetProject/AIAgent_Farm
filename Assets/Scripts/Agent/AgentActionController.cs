@@ -76,6 +76,8 @@ public class AgentActionController : MonoBehaviour
     int[] _agentRendererRelativeOrders;
 
     [SerializeField]
+    AnimatorAudioController _audioController;
+    [SerializeField]
     InventoryManager _inventoryMng;
     [SerializeField]
     TileManager _tileMng;
@@ -147,6 +149,17 @@ public class AgentActionController : MonoBehaviour
             {
                 StartCoroutine(MoveToRoutine(tile.coord));
             }
+        }
+        if(Input.GetKeyDown(KeyCode.Q))
+        {
+            if(_tileMng.TryGetTileFromWorldPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition), out TileData tile))
+            {
+                StartCoroutine(ProcessCommandsCoroutine(new List<AgentCommand>(1) { new AgentCommand(ACTION_TYPE.Plant, tile.coord, TileData.CropType.Carrot) }, null));
+            }
+        }
+        if(Input.GetKeyDown(KeyCode.W))
+        {
+            StartCoroutine(ProcessCommandsCoroutine(new List<AgentCommand>(1) { new AgentCommand(ACTION_TYPE.Eat, Vector2Int.zero, TileData.CropType.Carrot) }, null));
         }
     }
 
@@ -220,7 +233,7 @@ public class AgentActionController : MonoBehaviour
             }
 
             commandStopwatch.Stop();
-            UnityEngine.Debug.Log($"[AI Timing] Action.{currentCommand.Action}: {commandStopwatch.ElapsedMilliseconds}ms | command=\"{currentCommand}\"");
+            Debug.Log($"[AI Timing] Action.{currentCommand.Action}: {commandStopwatch.ElapsedMilliseconds}ms | command=\"{currentCommand}\"");
         }
 
         _isBusy = false;
@@ -282,6 +295,7 @@ public class AgentActionController : MonoBehaviour
     {
         ChangeState(AgentState.Work);
         ResetDirection();
+        _audioController.SetWorkFlag(true);
 
         if (CropManager.instance == null)
         {
@@ -319,6 +333,7 @@ public class AgentActionController : MonoBehaviour
     {
         ChangeState(AgentState.Work);
         ResetDirection();
+        _audioController.SetWorkFlag(true);
         string harvestedTargetId = string.Empty;
 
         if (_tileMng.TryGetTile(targetPos, out TileData tile) && tile != null)
@@ -344,6 +359,7 @@ public class AgentActionController : MonoBehaviour
     {
         ChangeState(AgentState.Work);
         ResetDirection();
+        _audioController.SetWorkFlag(false);
 
         if (CropManager.instance == null)
         {
@@ -367,6 +383,7 @@ public class AgentActionController : MonoBehaviour
 
     public void EatDirectly()
     {
+        AudioManager.Instance.PlaySFX(SfxType.Click);
         ItemSO item = _inventoryMng.GetFocusedItem();
         TileData.CropType crop = item.itemName switch
         {

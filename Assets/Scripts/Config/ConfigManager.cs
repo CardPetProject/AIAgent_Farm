@@ -78,6 +78,7 @@ public class ConfigManager : MonoBehaviour
 
     public void OnApplyButtonClicked()
     {
+        AudioManager.Instance.PlaySFX(SfxType.Click);
         ResolveControllerReferences();
 
         if (languageController != null)
@@ -118,6 +119,7 @@ public class ConfigManager : MonoBehaviour
 
     public void OnRevertButtonClicked()
     {
+        AudioManager.Instance.PlaySFX(SfxType.Click);
         // 각 컨트롤러가 가지고 있는 수정 전 상태로 스스로를 되돌림
         if (soundController != null) soundController.RevertChanges();
         if (screenController != null) screenController.RevertChanges();

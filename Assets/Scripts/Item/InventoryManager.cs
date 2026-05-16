@@ -273,6 +273,7 @@ public class InventoryManager : MonoBehaviour
 
     public void OnClickSellItemButton()
     {
+        AudioManager.Instance.PlaySFX(SfxType.Store0);
         InventorySlot selectedSlot = _inventoryUI.GetFocusedSlotItem();
 
         // 2. 예외 처리 (선택된 게 없거나 빈 슬롯이면 무시)
@@ -294,6 +295,7 @@ public class InventoryManager : MonoBehaviour
 
     public void OnClickSellAllSelectedItemButton()
     {
+        AudioManager.Instance.PlaySFX(SfxType.Store0);
         InventorySlot selectedSlot = _inventoryUI.GetFocusedSlotItem();
 
         if (selectedSlot == null || selectedSlot.IsEmpty) return;

@@ -13,7 +13,7 @@ public class ShopManager : MonoBehaviour
     void Start()
     {
         RefreshShop();
-        CloseShop();
+        CloseShopWithoutSFX();
     }
 
     public List<ItemSO> GetShopItems()
@@ -63,9 +63,16 @@ public class ShopManager : MonoBehaviour
 
         shopWindow.offsetMin = Vector2.zero;
         shopWindow.offsetMax = Vector2.zero;
+        AudioManager.Instance.PlaySFX(SfxType.Click);
     }
 
     public void CloseShop()
+    {
+        CloseShopWithoutSFX();
+        AudioManager.Instance.PlaySFX(SfxType.Click);
+    }
+
+    void CloseShopWithoutSFX()
     {
         if (!TryGetShopWindow(out RectTransform shopWindow))
         {

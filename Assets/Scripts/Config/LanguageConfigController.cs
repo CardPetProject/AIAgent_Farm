@@ -92,6 +92,13 @@ public class LanguageConfigController : MonoBehaviour
 
     public void SetLanguageByIndex(int index)
     {
+        AudioManager.Instance.PlaySFX(SfxType.Click);
+ 
+        SetLanguageByIndexWithoutSFX(index);
+    }
+
+    void SetLanguageByIndexWithoutSFX(int index)
+    {
         if (index < 0 || index >= languageOptions.Count)
         {
             return;
@@ -109,7 +116,7 @@ public class LanguageConfigController : MonoBehaviour
     {
         if (languageDropdown != null)
         {
-            SetLanguageByIndex(languageDropdown.value);
+            SetLanguageByIndexWithoutSFX(languageDropdown.value);
         }
     }
 

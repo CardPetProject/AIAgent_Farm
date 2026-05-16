@@ -34,6 +34,14 @@ public class CharacterManager : MonoBehaviour
     {
         focus[characterID].gameObject.SetActive(true);
         UI.gameObject.SetActive(true);
+
+        AudioManager.Instance.PlaySFX(SfxType.Click);
+    }
+
+    public void HideUI()
+    {
+        UI.gameObject.SetActive(false);
+        AudioManager.Instance.PlaySFX(SfxType.Click);
     }
 
     private void Start()
@@ -44,6 +52,13 @@ public class CharacterManager : MonoBehaviour
         }
     }
     public void SetCharacterID(int ID)
+    {
+        SetCharacterIDWithoutSFX(ID);
+
+        AudioManager.Instance.PlaySFX(SfxType.Click);
+    }
+
+    public void SetCharacterIDWithoutSFX(int ID)
     {
         characterID = ID;
 
@@ -71,6 +86,7 @@ public class CharacterManager : MonoBehaviour
     {
         Characterrefresh();
         CharacterChanged?.Invoke(characterID);
+        AudioManager.Instance.PlaySFX(SfxType.Click);
     }
 
     public void Characterrefresh()
