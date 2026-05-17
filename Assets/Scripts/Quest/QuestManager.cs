@@ -19,7 +19,7 @@ public class QuestManager : MonoBehaviour
     private int currentQuestIndex;
     private TutorialQuestData currentQuest;
     private bool isCurrentQuestClear;
-    private bool isTutorialStarted;
+    private bool isTutorialActive;
 
     public TutorialQuestData CurrentQuest => currentQuest;
     public bool IsTutorialFinished { get; private set; }
@@ -33,29 +33,34 @@ public class QuestManager : MonoBehaviour
     {
         if (questUI == null)
         {
-            questUI = FindFirstObjectByType<QuestUI>();
+            questUI = FindFirstObjectByType<QuestUI>(FindObjectsInactive.Include);
         }
 
         if (goldManager == null)
         {
             goldManager = FindFirstObjectByType<GoldManager>();
         }
-    }
 
-    private void Start()
-    {
-        if (!isTutorialStarted)
-        {
-            StartTutorial();
-        }
+        DeactivateForLobby();
     }
 
     public void StartTutorial()
     {
         currentQuestIndex = 0;
-        isTutorialStarted = true;
+        isTutorialActive = true;
         IsTutorialFinished = false;
         RefreshCurrentQuest();
+    }
+
+    public void DeactivateForLobby()
+    {
+        isTutorialActive = false;
+        questUI?.Hide();
+
+        if (gameObject.activeSelf)
+        {
+            gameObject.SetActive(false);
+        }
     }
 
     public QuestStateDto CreateState()
@@ -88,7 +93,7 @@ public class QuestManager : MonoBehaviour
             currentQuestProgress_now = Mathf.Max(0, state.currentQuestProgressNow);
             currentQuestProgress_max = Mathf.Max(0, state.currentQuestProgressMax);
             isCurrentQuestClear = false;
-            isTutorialStarted = true;
+            isTutorialActive = true;
             IsTutorialFinished = true;
             questUI?.Hide();
             return;
@@ -114,7 +119,7 @@ public class QuestManager : MonoBehaviour
         currentQuestProgress_now = Mathf.Clamp(state.currentQuestProgressNow, 0, currentQuestProgress_max);
         type = currentQuest.QuestType;
         isCurrentQuestClear = state.isCurrentQuestClear || currentQuestProgress_now >= currentQuestProgress_max;
-        isTutorialStarted = true;
+        isTutorialActive = true;
         IsTutorialFinished = false;
 
         RefreshQuestUI();
@@ -122,14 +127,9 @@ public class QuestManager : MonoBehaviour
 
     public void ReportQuestProgress(QuestType questType, string targetId = "", int amount = 1)
     {
-        if (!isTutorialStarted)
+        if (!isTutorialActive || IsTutorialFinished || currentQuest == null || isCurrentQuestClear || amount <= 0)
         {
-            StartTutorial();
-        }
-
-        if (IsTutorialFinished || currentQuest == null || isCurrentQuestClear || amount <= 0)
-        {
-            Debug.Log($"[QuestManager] Report ignored. finished:{IsTutorialFinished}, quest:{currentQuest != null}, clear:{isCurrentQuestClear}, amount:{amount}", this);
+            Debug.Log($"[QuestManager] Report ignored. active:{isTutorialActive}, finished:{IsTutorialFinished}, quest:{currentQuest != null}, clear:{isCurrentQuestClear}, amount:{amount}", this);
             return;
         }
 
@@ -171,7 +171,7 @@ public class QuestManager : MonoBehaviour
 
     public bool TryClaimCurrentQuestReward()
     {
-        if (IsTutorialFinished || currentQuest == null || !isCurrentQuestClear)
+        if (!isTutorialActive || IsTutorialFinished || currentQuest == null || !isCurrentQuestClear)
         {
             return false;
         }
@@ -226,7 +226,7 @@ public class QuestManager : MonoBehaviour
     {
         if (questUI == null)
         {
-            questUI = FindFirstObjectByType<QuestUI>();
+            questUI = FindFirstObjectByType<QuestUI>(FindObjectsInactive.Include);
         }
 
         if (questUI == null)
@@ -243,6 +243,7 @@ public class QuestManager : MonoBehaviour
     {
         currentQuest = null;
         isCurrentQuestClear = false;
+        isTutorialActive = true;
         IsTutorialFinished = true;
         questUI?.Hide();
         TutorialFinished?.Invoke();

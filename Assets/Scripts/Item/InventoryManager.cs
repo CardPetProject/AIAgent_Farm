@@ -94,7 +94,7 @@ public class InventoryManager : MonoBehaviour
     }
 
     // 아이템을 기존 스택 또는 빈 슬롯에 추가한다.
-    public bool AddItem(ItemSO item, int amount = 1)
+    public bool AddItem(ItemSO item, int amount = 1, bool showFeedback = true)
     {
         if (item == null)
         {
@@ -124,7 +124,7 @@ public class InventoryManager : MonoBehaviour
                 if (remainingAmount <= 0)
                 {
                     Debug.Log($"[InventoryManager] Added {amount} x {item.itemName}.", this);
-                    _itemFeedback.ShowItemFeedback(_feedbackOffset.position, item.icon, amount);
+                    ShowItemFeedback(item, amount, showFeedback);
                     RefreshUI(); // 아이템 획득 완료 후 UI 갱신
                     return true;
                 }
@@ -145,7 +145,7 @@ public class InventoryManager : MonoBehaviour
             if (remainingAmount <= 0)
             {
                 Debug.Log($"[InventoryManager] Added {amount} x {item.itemName}.", this);
-                _itemFeedback.ShowItemFeedback(_feedbackOffset.position, item.icon, amount);
+                ShowItemFeedback(item, amount, showFeedback);
                 RefreshUI(); // 아이템 획득 완료 후 UI 갱신
                 return true;
             }
@@ -155,9 +155,19 @@ public class InventoryManager : MonoBehaviour
         Debug.LogWarning(
             $"[InventoryManager] Inventory is full. Added {addedAmount}/{amount} x {item.itemName}.",
             this);
-        _itemFeedback.ShowItemFeedback(_feedbackOffset.position, item.icon, addedAmount);
+        ShowItemFeedback(item, addedAmount, showFeedback);
         RefreshUI(); // 일부만 들어갔을 경우를 대비해 갱신
         return false;
+    }
+
+    private void ShowItemFeedback(ItemSO item, int amount, bool showFeedback)
+    {
+        if (!showFeedback || amount == 0 || _itemFeedback == null || _feedbackOffset == null)
+        {
+            return;
+        }
+
+        _itemFeedback.ShowItemFeedback(_feedbackOffset.position, item.icon, amount);
     }
 
     public bool HasItem(ItemSO item, int amount = 1)
@@ -264,7 +274,7 @@ public class InventoryManager : MonoBehaviour
                     continue;
                 }
 
-                AddItem(item, dto.count);
+                AddItem(item, dto.count, false);
             }
         }
 

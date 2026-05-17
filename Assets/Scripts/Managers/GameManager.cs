@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TileManager tileManager;
     [SerializeField] private AgentActionController agentActionController;
     [SerializeField] private AgentChatManager agentChatManager;
+    [SerializeField] private QuestManager questManager;
     [SerializeField] private Vector2Int startTileCoord = new Vector2Int(7, 4);
 
     private bool _isStartingGame;
@@ -42,6 +43,11 @@ public class GameManager : MonoBehaviour
         if (agentChatManager == null)
         {
             agentChatManager = FindFirstObjectByType<AgentChatManager>();
+        }
+
+        if (questManager == null)
+        {
+            questManager = FindFirstObjectByType<QuestManager>(FindObjectsInactive.Include);
         }
     }
 
@@ -137,6 +143,7 @@ public class GameManager : MonoBehaviour
         menu.anchoredPosition = new Vector2(0, -300);
         title_Tile.SetActive(true);
         title_Menu.SetActive(true);
+        questManager?.DeactivateForLobby();
         _isStartingGame = false;
     }
 

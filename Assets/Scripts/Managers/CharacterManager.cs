@@ -48,7 +48,7 @@ public class CharacterManager : MonoBehaviour
     {
         if (refreshOnStart)
         {
-            Characterrefresh();
+            ApplyCharacterSetting();
         }
     }
     public void SetCharacterID(int ID)
@@ -60,33 +60,43 @@ public class CharacterManager : MonoBehaviour
 
     public void SetCharacterIDWithoutSFX(int ID)
     {
-        characterID = ID;
-
-        if (focus != null)
-        {
-            for (int index = 0; index < focus.Length; index++)
-            {
-                if (focus[index] != null)
-                {
-                    focus[index].SetActive(false);
-                }
-            }
-        }
-
-        if (focus != null && ID >= 0 && ID < focus.Length && focus[ID] != null)
-        {
-            focus[ID].SetActive(true);
-        }
-
-        // Characterrefresh();
-        // CharacterChanged?.Invoke(characterID);
+        characterID = ClampCharacterID(ID);
+        ApplyCharacterSetting();
     }
 
     public void SetCharacterID()
     {
+        characterID = ClampCharacterID(characterID);
+        ApplyCharacterSetting();
+        AudioManager.Instance.PlaySFX(SfxType.Click);
+    }
+
+    private void ApplyCharacterSetting()
+    {
+        ApplyFocusByCharacterID();
         Characterrefresh();
         CharacterChanged?.Invoke(characterID);
-        AudioManager.Instance.PlaySFX(SfxType.Click);
+    }
+
+    private void ApplyFocusByCharacterID()
+    {
+        if (focus == null)
+        {
+            return;
+        }
+
+        for (int index = 0; index < focus.Length; index++)
+        {
+            if (focus[index] != null)
+            {
+                focus[index].SetActive(false);
+            }
+        }
+
+        if (characterID >= 0 && characterID < focus.Length && focus[characterID] != null)
+        {
+            focus[characterID].SetActive(true);
+        }
     }
 
     public void Characterrefresh()
@@ -160,6 +170,20 @@ public class CharacterManager : MonoBehaviour
         {
             characterPersonaPrompts = CreateDefaultPersonaPrompts();
         }
+    }
+
+    private int ClampCharacterID(int ID)
+    {
+        int characterCount = characterAnimators != null && characterAnimators.Length > 0
+            ? characterAnimators.Length
+            : focus != null ? focus.Length : 0;
+
+        if (characterCount <= 0)
+        {
+            return Mathf.Max(0, ID);
+        }
+
+        return Mathf.Clamp(ID, 0, characterCount - 1);
     }
 
     private static string[] CreateDefaultPersonaPrompts()
