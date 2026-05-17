@@ -2551,7 +2551,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3898337457356616510, guid: d9af6f4866df2bd48ac057b279fae0b9, type: 3}
       propertyPath: m_Padding.z
-      value: 67.550476
+      value: 14.073015
       objectReference: {fileID: 0}
     - target: {fileID: 5537722458187237798, guid: d9af6f4866df2bd48ac057b279fae0b9, type: 3}
       propertyPath: value
@@ -6634,7 +6634,7 @@ MonoBehaviour:
   tileManager: {fileID: 884189656}
   agentActionController: {fileID: 1671378089}
   agentChatManager: {fileID: 1671378088}
-  questManager: {fileID: 0}
+  questManager: {fileID: 1829905794}
   startTileCoord: {x: 7, y: 4}
 --- !u!4 &484139206
 Transform:
@@ -17375,7 +17375,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3898337457356616510, guid: d9af6f4866df2bd48ac057b279fae0b9, type: 3}
       propertyPath: m_Padding.z
-      value: 67.550476
+      value: 14.073015
       objectReference: {fileID: 0}
     - target: {fileID: 5537722458187237798, guid: d9af6f4866df2bd48ac057b279fae0b9, type: 3}
       propertyPath: value
@@ -20387,7 +20387,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3898337457356616510, guid: d9af6f4866df2bd48ac057b279fae0b9, type: 3}
       propertyPath: m_Padding.z
-      value: 67.550476
+      value: 14.073015
       objectReference: {fileID: 0}
     - target: {fileID: 5537722458187237798, guid: d9af6f4866df2bd48ac057b279fae0b9, type: 3}
       propertyPath: value
@@ -22232,12 +22232,12 @@ RectTransform:
   m_Children:
   - {fileID: 1608371190}
   - {fileID: 396168041}
+  - {fileID: 1829905793}
   - {fileID: 1117552733961490456}
   - {fileID: 415635738}
   - {fileID: 1582804442}
   - {fileID: 427317857}
   - {fileID: 1479028476}
-  - {fileID: 1829905793}
   - {fileID: 4872479921210578813}
   - {fileID: 1525493965}
   - {fileID: 1287412875}
@@ -28581,7 +28581,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5547552828419221448, guid: 027013769a2a24132962cd79de5704c7, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5547552828419221449, guid: 027013769a2a24132962cd79de5704c7, type: 3}
       propertyPath: m_Pivot.x
@@ -29094,6 +29094,7 @@ MonoBehaviour:
   questManager: {fileID: 1829905794}
   questButton: {fileID: 1829905796}
   clearDescriptionColor: {r: 0, g: 0.6603774, b: 0, a: 1}
+  hiddenPosition: {x: 10000, y: 10000}
 --- !u!114 &1829905796
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -48146,10 +48147,10 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: -437.0255, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &7349254384323986825
@@ -48194,8 +48195,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 62.027466, y: 33.840027}
-  m_SizeDelta: {x: 252.15, y: 65.08}
+  m_AnchoredPosition: {x: 329.29926, y: 33.840027}
+  m_SizeDelta: {x: 786.6936, y: 65.08}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &7349254385294226206
 GameObject:

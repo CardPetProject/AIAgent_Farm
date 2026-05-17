@@ -13,8 +13,12 @@ public class QuestUI : MonoBehaviour
     [SerializeField] private QuestManager questManager;
     [SerializeField] private Button questButton;
     [SerializeField] private Color clearDescriptionColor = Color.green;
+    [SerializeField] private Vector2 hiddenPosition = new Vector2(10000f, 10000f);
 
     private Color normalDescriptionColor = Color.white;
+    private RectTransform rectTransform;
+    private Vector2 shownPosition;
+    private bool hasShownPosition;
     private TutorialQuestData currentQuest;
     private int currentProgress;
     private int maxProgress;
@@ -22,6 +26,8 @@ public class QuestUI : MonoBehaviour
 
     private void Awake()
     {
+        CacheShownPosition();
+
         if (questManager == null)
         {
             questManager = FindFirstObjectByType<QuestManager>();
@@ -106,8 +112,49 @@ public class QuestUI : MonoBehaviour
 
     public void Hide()
     {
-        gameObject.SetActive(false);
+        CacheShownPosition();
+
+        if (rectTransform != null)
+        {
+            rectTransform.anchoredPosition = hiddenPosition;
+        }
         // AudioManager.Instance.PlaySFX(SfxType.Click);
+    }
+
+    public void Show()
+    {
+        CacheShownPosition();
+
+        if (!gameObject.activeSelf)
+        {
+            gameObject.SetActive(true);
+        }
+
+        if (rectTransform != null)
+        {
+            rectTransform.anchoredPosition = shownPosition;
+        }
+    }
+
+    private void CacheShownPosition()
+    {
+        if (hasShownPosition)
+        {
+            return;
+        }
+
+        if (rectTransform == null)
+        {
+            rectTransform = GetComponent<RectTransform>();
+        }
+
+        if (rectTransform == null)
+        {
+            return;
+        }
+
+        shownPosition = rectTransform.anchoredPosition;
+        hasShownPosition = true;
     }
 
     private void HandleSelectedLocaleChanged(Locale locale)

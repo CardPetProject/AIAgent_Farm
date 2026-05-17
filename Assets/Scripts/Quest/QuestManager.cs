@@ -52,15 +52,20 @@ public class QuestManager : MonoBehaviour
         RefreshCurrentQuest();
     }
 
+    public void ActivateForGame()
+    {
+        isTutorialActive = true;
+
+        if (!IsTutorialFinished && currentQuest != null)
+        {
+            questUI?.Show();
+        }
+    }
+
     public void DeactivateForLobby()
     {
         isTutorialActive = false;
         questUI?.Hide();
-
-        if (gameObject.activeSelf)
-        {
-            gameObject.SetActive(false);
-        }
     }
 
     public QuestStateDto CreateState()

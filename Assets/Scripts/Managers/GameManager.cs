@@ -117,6 +117,7 @@ public class GameManager : MonoBehaviour
         menu.anchoredPosition = new Vector2(0, 60);
         title_Tile.SetActive(false);
         title_Menu.SetActive(false);
+        questManager?.ActivateForGame();
     }
 
     public void NewStart()
