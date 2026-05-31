@@ -127,40 +127,40 @@ public class AgentActionController : MonoBehaviour
     {
         UpdateCharacterSorting();
 
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            _inventoryMng.AddItem(_inventoryMng.itemDatabase[2]);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            _inventoryMng.AddItem(_inventoryMng.itemDatabase[3]);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            _inventoryMng.AddItem(_inventoryMng.itemDatabase[0]);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha4))
-        {
-            _inventoryMng.AddItem(_inventoryMng.itemDatabase[1]);
-        }
-        if (Input.GetMouseButtonDown(1))
-        {
-            if(_tileMng.TryGetTileFromWorldPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition), out TileData tile))
-            {
-                StartCoroutine(MoveToRoutine(tile.coord));
-            }
-        }
-        if(Input.GetKeyDown(KeyCode.Q))
-        {
-            if(_tileMng.TryGetTileFromWorldPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition), out TileData tile))
-            {
-                StartCoroutine(ProcessCommandsCoroutine(new List<AgentCommand>(1) { new AgentCommand(ACTION_TYPE.Plant, tile.coord, TileData.CropType.Carrot) }, null));
-            }
-        }
-        if(Input.GetKeyDown(KeyCode.W))
-        {
-            StartCoroutine(ProcessCommandsCoroutine(new List<AgentCommand>(1) { new AgentCommand(ACTION_TYPE.Eat, Vector2Int.zero, TileData.CropType.Carrot) }, null));
-        }
+        // if (Input.GetKeyDown(KeyCode.Alpha1))
+        // {
+        //     _inventoryMng.AddItem(_inventoryMng.itemDatabase[2]);
+        // }
+        // if (Input.GetKeyDown(KeyCode.Alpha2))
+        // {
+        //     _inventoryMng.AddItem(_inventoryMng.itemDatabase[3]);
+        // }
+        // if (Input.GetKeyDown(KeyCode.Alpha3))
+        // {
+        //     _inventoryMng.AddItem(_inventoryMng.itemDatabase[0]);
+        // }
+        // if (Input.GetKeyDown(KeyCode.Alpha4))
+        // {
+        //     _inventoryMng.AddItem(_inventoryMng.itemDatabase[1]);
+        // }
+        // if (Input.GetMouseButtonDown(1))
+        // {
+        //     if(_tileMng.TryGetTileFromWorldPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition), out TileData tile))
+        //     {
+        //         StartCoroutine(MoveToRoutine(tile.coord));
+        //     }
+        // }
+        // if(Input.GetKeyDown(KeyCode.Q))
+        // {
+        //     if(_tileMng.TryGetTileFromWorldPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition), out TileData tile))
+        //     {
+        //         StartCoroutine(ProcessCommandsCoroutine(new List<AgentCommand>(1) { new AgentCommand(ACTION_TYPE.Plant, tile.coord, TileData.CropType.Carrot) }, null));
+        //     }
+        // }
+        // if(Input.GetKeyDown(KeyCode.W))
+        // {
+        //     StartCoroutine(ProcessCommandsCoroutine(new List<AgentCommand>(1) { new AgentCommand(ACTION_TYPE.Eat, Vector2Int.zero, TileData.CropType.Carrot) }, null));
+        // }
     }
 
     public bool IsBusy() { return _isBusy; }
