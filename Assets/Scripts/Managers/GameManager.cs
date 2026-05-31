@@ -111,6 +111,7 @@ public class GameManager : MonoBehaviour
             newStartUI.CloseWithoutSFX();
         }
 
+        CharacterManager.Instance?.SetCharacterIDWithoutSFX(0);
         ResetPlayerToStartTile();
 
         userInfo.OpenUI();

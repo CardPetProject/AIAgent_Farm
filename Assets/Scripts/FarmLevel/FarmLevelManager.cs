@@ -26,6 +26,7 @@ public class FarmLevelManager : MonoBehaviour
     [SerializeField] private float steamLabelRetryDelay = 0.5f;
     [SerializeField] private int steamLabelRetryCount = 10;
     public Image characterIcon;
+    Image characterIconBg;
     [SerializeField] private CharacterManager characterManager;
 
    bool _isInitialized;
@@ -48,6 +49,7 @@ public class FarmLevelManager : MonoBehaviour
     private void OnEnable()
     {
         CharacterManager.CharacterChanged += RefreshCharacterIcon;
+        RefreshCharacterIcon();
     }
 
     private void OnDisable()
@@ -230,6 +232,24 @@ public class FarmLevelManager : MonoBehaviour
         if (icon != null)
         {
             characterIcon.sprite = icon;
+            Vector2 iconPos = new Vector2();
+            Vector2 size = new Vector2();
+            if(characterID == 0) // default character
+            {
+                iconPos = new Vector2(0f, -12.1f);
+                size = new Vector2(109.1205f, 100.6696f);
+            }
+            else
+            {
+                iconPos = new Vector2(-12.5f, -12.1f);
+                size = new Vector2(96.605f, 89.1234f);
+            }
+
+            if(characterIconBg == null) characterIconBg = characterIcon.transform.parent.GetComponent<Image>();
+
+            characterIconBg.color = characterManager.GetCharacterIconBgColor();
+            characterIcon.rectTransform.anchoredPosition = iconPos;
+            characterIcon.rectTransform.sizeDelta = size;
         }
     }
 

@@ -99,18 +99,31 @@ public class AgentChatManager : MonoBehaviour
             Debug.LogWarning("[AgentChatManager] QuestManager reference is missing. Chat quest progress was not reported.", this);
         }
 
+        string timeStr = DateTime.Now.ToString("hh:mm", System.Globalization.CultureInfo.InvariantCulture);
+        string ampm = DateTime.Now.Hour >= 12 ? "Pm" : "Am";
+        string formattedTime = $"{ampm} {timeStr}";
+
         GameObject playerChatBox = Instantiate(_chatBoxPlayer, _chatHistory);
-        playerChatBox.GetComponent<ChatBox>().SetText(input);
+        if (playerChatBox.TryGetComponent(out ChatBox playerBox))
+        {
+            playerBox.SetText(input);
+            playerBox.SetTime(formattedTime);
+        }
 
         // 에이전트 말풍선은 먼저 만들어 두고, 파이프라인 진행에 따라 "생각중..." -> 최종 답변으로 갱신합니다.
         GameObject agentChatBox = Instantiate(_chatBoxAgent, _chatHistory);
+        if (agentChatBox.TryGetComponent(out ChatBox agentBox))
+        {
+            agentBox.SetTime(formattedTime);
+        }
+
         if (_instructionMng != null)
         {
             _instructionMng.HandleUserInput(input, agentChatBox);
         }
-        else if (agentChatBox.TryGetComponent(out ChatBox chatBox))
+        else if (agentBox != null)
         {
-            chatBox.SetText("에이전트 초기화에 실패했습니다.");
+            agentBox.SetText("에이전트 초기화에 실패했습니다.");
         }
     }
 

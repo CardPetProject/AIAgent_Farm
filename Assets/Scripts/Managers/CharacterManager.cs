@@ -6,6 +6,8 @@ public class CharacterManager : MonoBehaviour
     public static CharacterManager Instance { get; private set; }
     public static event Action<int> CharacterChanged;
     public GameObject[] focus;
+    [SerializeField]
+    UnityEngine.UI.Image[] charcaterIconBgs;
     public GameObject UI;
     public Sprite[] characterIcons;
     public Sprite[] characterHeads;
@@ -184,6 +186,17 @@ public class CharacterManager : MonoBehaviour
         }
 
         return Mathf.Clamp(ID, 0, characterCount - 1);
+    }
+
+    public Color GetCharacterIconBgColor()
+    {
+        if (charcaterIconBgs == null || charcaterIconBgs.Length == 0)
+        {
+            return Color.white;
+        }
+
+        int index = characterID % charcaterIconBgs.Length;
+        return charcaterIconBgs[index].color;
     }
 
     private static string[] CreateDefaultPersonaPrompts()
