@@ -6,6 +6,7 @@ public class NoticeManager : MonoBehaviour
     public TMP_Text title;
     public TMP_Text desc;
 
+    [SerializeField] private bool noticeEntryEnabled;
     [SerializeField] private string emptyNoticeTitle = "공지사항";
     [SerializeField] private string emptyNoticeContent = "현재 등록된 공지사항이 없습니다.";
     [SerializeField] private string errorNoticeTitle = "공지사항";
@@ -18,6 +19,17 @@ public class NoticeManager : MonoBehaviour
 
     public void LoadAndOpen()
     {
+        if (!noticeEntryEnabled)
+        {
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySFX(SfxType.Click);
+            }
+
+            Debug.Log("[NoticeManager] Notice entry is disabled.", this);
+            return;
+        }
+
         gameObject.SetActive(true);
         AudioManager.Instance.PlaySFX(SfxType.Click);
 

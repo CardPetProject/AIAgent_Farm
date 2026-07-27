@@ -69,12 +69,6 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        if (Application.isEditor)
-        {
-            NewStart();
-            return;
-        }
-
         _isStartingGame = true;
         NetworkManager.Instance.PushConnectLoading();
 
@@ -111,7 +105,6 @@ public class GameManager : MonoBehaviour
             newStartUI.CloseWithoutSFX();
         }
 
-        CharacterManager.Instance?.SetCharacterIDWithoutSFX(0);
         ResetPlayerToStartTile();
 
         userInfo.OpenUI();

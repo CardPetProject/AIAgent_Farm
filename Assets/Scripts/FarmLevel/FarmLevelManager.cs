@@ -22,7 +22,6 @@ public class FarmLevelManager : MonoBehaviour
    public TMP_Text farmName;
     [SerializeField] private string loadingText = "Steam user loading...";
     [SerializeField] private string unavailableText = "Steam user unavailable";
-    [SerializeField] private bool includePersonaName = true;
     [SerializeField] private float steamLabelRetryDelay = 0.5f;
     [SerializeField] private int steamLabelRetryCount = 10;
     public Image characterIcon;
@@ -297,19 +296,13 @@ public class FarmLevelManager : MonoBehaviour
 
         steamService.RefreshUserData();
 
-        if (!steamService.IsInitialized || string.IsNullOrEmpty(steamService.SteamId))
+        if (!steamService.IsInitialized || string.IsNullOrEmpty(steamService.PersonaName))
         {
             farmName.text = unavailableText;
             return;
         }
 
-        if (includePersonaName && !string.IsNullOrEmpty(steamService.PersonaName))
-        {
-            farmName.text = $"{steamService.PersonaName}\n{steamService.SteamId}";
-            return;
-        }
-
-        farmName.text = $"{steamService.SteamId}";
+        farmName.text = steamService.PersonaName;
     }
 
     void TryRefreshLabelUntilReady()
@@ -325,7 +318,7 @@ public class FarmLevelManager : MonoBehaviour
         {
             steamService.RefreshUserData();
 
-            if (steamService.IsInitialized && !string.IsNullOrEmpty(steamService.SteamId))
+            if (steamService.IsInitialized && !string.IsNullOrEmpty(steamService.PersonaName))
             {
                 RefreshLabel();
                 CancelInvoke(nameof(TryRefreshLabelUntilReady));

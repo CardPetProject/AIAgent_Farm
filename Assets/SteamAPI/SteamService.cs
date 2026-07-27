@@ -15,7 +15,6 @@ public class SteamService : MonoBehaviour
     [SerializeField] private bool dontDestroyOnLoad = true;
 #pragma warning disable 0414
     [SerializeField] private bool requestWebApiTicketOnInitialize = true;
-    [SerializeField] private bool loginToBackendOnTicketReceived = true;
     [SerializeField] private string webApiIdentity = DefaultWebApiIdentity;
 #pragma warning restore 0414
 
@@ -241,10 +240,7 @@ public class SteamService : MonoBehaviour
         Debug.Log($"Steam Web API ticket received. identity={pendingWebApiIdentity}, byteLength={callback.m_cubTicket}");
         WebApiTicketReceived?.Invoke(LastWebApiTicketHex);
 
-        if (loginToBackendOnTicketReceived)
-        {
-            LoginToBackendWithSteamTicket(LastWebApiTicketHex, pendingWebApiIdentity);
-        }
+        Debug.Log("Steam Web API ticket received, but backend login is disabled because game saves are local JSON files.");
     }
 
     private static string ConvertBytesToHex(byte[] bytes, int length)
@@ -263,79 +259,6 @@ public class SteamService : MonoBehaviour
         }
 
         return builder.ToString();
-    }
-
-    private void LoginToBackendWithSteamTicket(string ticketHex, string identity)
-    {
-        if (string.IsNullOrWhiteSpace(ticketHex))
-        {
-            Debug.LogError("Steam Web API ticket is empty, so the backend login request was skipped.");
-            return;
-        }
-
-        SteamAuthRequest request = new SteamAuthRequest
-        {
-            ticket = ticketHex,
-            identity = string.IsNullOrWhiteSpace(identity) ? DefaultWebApiIdentity : identity,
-            personaName = PersonaName
-        };
-
-        APIController.Auth.LoginWithSteam(
-            request,
-            onSuccess: response =>
-            {
-                if (response == null)
-                {
-                    Debug.LogError("Steam backend login returned a null response.");
-                    return;
-                }
-
-                if (!response.canPlay)
-                {
-                    IsPlayBlocked = true;
-                    LastSanction = response.sanction;
-                    NetworkManager.Instance.SetAccessToken(string.Empty);
-                    NetworkManager.Instance.SetSessionId(string.Empty);
-                    ShowBanScreen(LastSanction);
-                    Debug.LogWarning(
-                        $"Steam backend login blocked by sanction. reason={response.sanction?.reason}, endsAt={response.sanction?.endsAt}");
-                    return;
-                }
-
-                IsPlayBlocked = false;
-                LastSanction = null;
-
-                if (string.IsNullOrWhiteSpace(response.accessToken))
-                {
-                    Debug.LogError("Steam backend login succeeded but accessToken was empty.");
-                    return;
-                }
-
-                NetworkManager.Instance.SetAccessToken(response.accessToken);
-                NetworkManager.Instance.SetSessionId(response.sessionId);
-                // appUserId가 없을 수 있으므로 steamId를 보조 식별값으로 사용한다.
-                string resolvedUserId = !string.IsNullOrWhiteSpace(response.appUserId)
-                    ? response.appUserId
-                    : response.steamId;
-                NetworkManager.Instance.SetUserId(resolvedUserId);
-
-                // 토큰 저장이 끝난 뒤에만 최신 저장본 로드를 시도한다.
-                if (!string.IsNullOrWhiteSpace(NetworkManager.Instance.GetAccessToken()))
-                {
-                    GameStateAssembler gameStateAssembler = FindFirstObjectByType<GameStateAssembler>();
-                    if (gameStateAssembler != null)
-                    {
-                        gameStateAssembler.GetData();
-                    }
-                }
-
-                Debug.Log(
-                    $"Steam backend login success. appUserId={response.appUserId}, steamId={response.steamId}, displayName={response.displayName}");
-            },
-            onError: error =>
-            {
-                Debug.LogError($"Steam backend login failed: {error}");
-            });
     }
 
 #endif

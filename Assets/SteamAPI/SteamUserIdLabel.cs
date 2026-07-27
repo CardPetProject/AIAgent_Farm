@@ -6,8 +6,6 @@ public class SteamUserIdLabel : MonoBehaviour
     [SerializeField] private TMP_Text targetText;
     [SerializeField] private string loadingText = "Steam user loading...";
     [SerializeField] private string unavailableText = "Steam user unavailable";
-    [SerializeField] private string prefix = "SteamID: ";
-    [SerializeField] private bool includePersonaName = true;
 
     private void Awake()
     {
@@ -39,18 +37,12 @@ public class SteamUserIdLabel : MonoBehaviour
 
         steamService.RefreshUserData();
 
-        if (!steamService.IsInitialized || string.IsNullOrEmpty(steamService.SteamId))
+        if (!steamService.IsInitialized || string.IsNullOrEmpty(steamService.PersonaName))
         {
             targetText.text = unavailableText;
             return;
         }
 
-        if (includePersonaName && !string.IsNullOrEmpty(steamService.PersonaName))
-        {
-            targetText.text = $"{steamService.PersonaName}\n{prefix}{steamService.SteamId}";
-            return;
-        }
-
-        targetText.text = $"{prefix}{steamService.SteamId}";
+        targetText.text = steamService.PersonaName;
     }
 }

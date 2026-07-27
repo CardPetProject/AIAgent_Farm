@@ -5,9 +5,11 @@ using UnityEngine;
 using Newtonsoft.Json;
 
 // 씬 곳곳에 흩어진 런타임 상태를 읽어
-// 서버 전송용 스냅샷 하나로 조립하는 역할을 담당한다.
+// 로컬 저장용 스냅샷 하나로 조립하는 역할을 담당한다.
 public class GameStateAssembler : MonoBehaviour
 {
+    private const int CurrentSaveSchemaVersion = 1;
+
     [SerializeField] private MiddleDB middleDB;
     [SerializeField] private InventoryManager inventoryManager;
     [SerializeField] private TokenManager tokenManager;
@@ -50,7 +52,7 @@ public class GameStateAssembler : MonoBehaviour
     }
 
     // 버튼 테스트용 메서드.
-    // 현재 게임 상태 스냅샷을 바탕화면에 json으로 저장한 뒤 백엔드로 전송한다.
+    // 현재 게임 상태 스냅샷을 로컬 json 파일로 저장한다.
     public void DebugSendSnapshot()
     {
         GameStateSnapshot snapshot = CreateSnapshot(GetDefaultUserId());
@@ -61,27 +63,18 @@ public class GameStateAssembler : MonoBehaviour
             return;
         }
 
-        string savedPath = SaveSnapshotJsonToDesktop(snapshot);
+        if (!LocalGameSaveRepository.TrySave(snapshot, out string savedPath, out string saveError))
+        {
+            Debug.LogError($"[GameStateAssembler] DebugSendSnapshot failed: {saveError}", this);
+            return;
+        }
 
         Debug.Log(
-            $"Sending snapshot | userId: {snapshot.userId}, " +
+            $"Local snapshot saved | userId: {snapshot.userId}, " +
             $"tiles: {snapshot.tiles.Length}, " +
             $"inventory: {snapshot.inventory.Length}, " +
             $"currentToken: {snapshot.currentToken} | savedPath: {savedPath}",
             this);
-
-        APIController.Game.SendSnapshot(
-            BuildSaveRequest(snapshot),
-            onSuccess: response =>
-            {
-                Debug.Log(
-                    $"Snapshot upload success | id: {response.id}, userId: {response.userId}, savedAt: {response.savedAt}, tileCount: {response.tileCount}",
-                    this);
-            },
-            onError: error =>
-            {
-                Debug.LogError($"[GameStateAssembler] Snapshot upload failed: {error}", this);
-            });
     }
 
     private void Awake()
@@ -140,19 +133,6 @@ public class GameStateAssembler : MonoBehaviour
 
     public void SaveData()
     {
-        // 에디터에서는 실서버 저장을 막고, 실제 로그인된 빌드에서만 저장한다.
-        if (Application.isEditor)
-        {
-            Debug.LogWarning("[GameStateAssembler] SaveData is blocked in Unity Editor.", this);
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(NetworkManager.Instance.GetAccessToken()))
-        {
-            Debug.LogWarning("[GameStateAssembler] SaveData is blocked because accessToken is missing.", this);
-            return;
-        }
-
         string userId = GetDefaultUserId();
         GameStateSnapshot snapshot = CreateSnapshot(userId);
 
@@ -162,59 +142,44 @@ public class GameStateAssembler : MonoBehaviour
             return;
         }
 
-        APIController.Game.SendSnapshot(
-            BuildSaveRequest(snapshot),
-            onSuccess: response =>
-            {
-                if (response == null)
-                {
-                    Debug.LogError("[GameStateAssembler] SaveData failed: response is null.", this);
-                    return;
-                }
+        if (!LocalGameSaveRepository.TrySave(snapshot, out string savedPath, out string saveError))
+        {
+            Debug.LogError($"[GameStateAssembler] SaveData failed: {saveError}", this);
+            return;
+        }
 
-                Debug.Log(
-                    $"SaveData success | id: {response.id}, userId: {response.userId}, savedAt: {response.savedAt}",
-                    this);
-            },
-            onError: error =>
-            {
-                Debug.LogError($"[GameStateAssembler] SaveData failed: {error}", this);
-            });
+        Debug.Log($"SaveData success | localPath: {savedPath}, savedAt: {snapshot.savedAt}", this);
     }
 
     public void GetData(Action onLoaded = null, Action onNewStart = null, Action<string> onFailed = null)
     {
-        // 최신 저장본을 가져와 있으면 적용하고, 없으면 기본 상태로 초기화한다.
-        APIController.Game.GetLatestSnapshot(
-            onSuccess: response =>
+        if (!LocalGameSaveRepository.TryLoad(out GameStateSnapshot snapshot, out string loadedPath, out string loadError))
+        {
+            if (!string.IsNullOrWhiteSpace(loadError))
             {
-                if (response == null)
-                {
-                    const string errorMessage = "[GameStateAssembler] GetData failed: response is null.";
-                    Debug.LogError(errorMessage, this);
-                    onFailed?.Invoke(errorMessage);
-                    return;
-                }
+                string errorMessage = $"[GameStateAssembler] GetData failed: {loadError}";
+                Debug.LogError(errorMessage, this);
+                onFailed?.Invoke(errorMessage);
+                return;
+            }
 
-                if (!response.hasSnapshot)
-                {
-                    ApplyDefaultState(false);
-                    Debug.Log($"GetData result | hasSnapshot: false | message: {response.message}", this);
-                    onNewStart?.Invoke();
-                    return;
-                }
+            ApplyDefaultState(false);
+            Debug.Log($"GetData result | hasSnapshot: false | localPath: {loadedPath}", this);
+            onNewStart?.Invoke();
+            return;
+        }
 
-                ApplyLoadedSnapshot(response);
-                Debug.Log(
-                    $"GetData success | id: {response.id}, userId: {response.userId}, savedAt: {response.savedAt}",
-                    this);
-                onLoaded?.Invoke();
-            },
-            onError: error =>
-            {
-                Debug.LogError($"[GameStateAssembler] GetData failed: {error}", this);
-                onFailed?.Invoke(error);
-            });
+        if (!TryValidateSnapshot(snapshot, out string validationError))
+        {
+            string errorMessage = $"[GameStateAssembler] GetData validation failed: {validationError}";
+            Debug.LogError(errorMessage, this);
+            onFailed?.Invoke(errorMessage);
+            return;
+        }
+
+        ApplyLoadedSnapshot(snapshot);
+        Debug.Log($"GetData success | userId: {snapshot.userId}, savedAt: {snapshot.savedAt}, localPath: {loadedPath}", this);
+        onLoaded?.Invoke();
     }
 
     public void StartNewGame(int worldSeed)
@@ -228,13 +193,16 @@ public class GameStateAssembler : MonoBehaviour
         ApplyDefaultState(true);
     }
 
-    // 현재 게임 상태를 서버에 보내기 쉬운 형태의 스냅샷으로 묶는다.
+    // 현재 게임 상태를 저장하기 쉬운 형태의 스냅샷으로 묶는다.
     public GameStateSnapshot CreateSnapshot(string userId)
     {
         // 씬에 흩어진 런타임 상태를 저장 가능한 하나의 스냅샷으로 모은다.
         return new GameStateSnapshot
         {
+            schemaVersion = CurrentSaveSchemaVersion,
             userId = userId,
+            worldSeed = middleDB != null ? middleDB.WorldSeed : 0,
+            savedAt = DateTime.UtcNow.ToString("o"),
             tiles = BuildTileDtos(),
             inventory = BuildInventoryDtos(),
             currentToken = BuildCurrentToken(),
@@ -246,7 +214,7 @@ public class GameStateAssembler : MonoBehaviour
         };
     }
 
-    // MiddleDB에 들어 있는 전체 타일 상태를 전송용 DTO 배열로 변환한다.
+    // MiddleDB에 들어 있는 전체 타일 상태를 저장용 DTO 배열로 변환한다.
     private TileStateDto[] BuildTileDtos()
     {
         if (middleDB == null)
@@ -277,7 +245,9 @@ public class GameStateAssembler : MonoBehaviour
                     tileType = state.tileType.ToString(),
                     cropType = state.cropType.ToString(),
                     cropState = state.cropState.ToString(),
-                    variantIndex = state.variantIndex
+                    variantIndex = state.variantIndex,
+                    growDuration = state.growDuration,
+                    maxTime = state.maxTime
                 });
             }
         }
@@ -490,13 +460,15 @@ public class GameStateAssembler : MonoBehaviour
             return false;
         }
 
-        if (snapshot.tiles.Length != 135)
+        int expectedTileCount = middleDB != null ? middleDB.TileCount : 135;
+
+        if (snapshot.tiles.Length != expectedTileCount)
         {
-            error = $"tiles length must be 135, but was {snapshot.tiles.Length}.";
+            error = $"tiles length must be {expectedTileCount}, but was {snapshot.tiles.Length}.";
             return false;
         }
 
-        bool[] seenIds = new bool[135];
+        bool[] seenIds = new bool[expectedTileCount];
 
         for (int i = 0; i < snapshot.tiles.Length; i++)
         {
@@ -507,9 +479,9 @@ public class GameStateAssembler : MonoBehaviour
                 return false;
             }
 
-            if (tile.id < 0 || tile.id >= 135)
+            if (tile.id < 0 || tile.id >= expectedTileCount)
             {
-                error = $"tiles[{i}].id must be between 0 and 134, but was {tile.id}.";
+                error = $"tiles[{i}].id must be between 0 and {expectedTileCount - 1}, but was {tile.id}.";
                 return false;
             }
 
@@ -526,6 +498,12 @@ public class GameStateAssembler : MonoBehaviour
                 || string.IsNullOrWhiteSpace(tile.cropState))
             {
                 error = $"tiles[{i}] has empty string fields.";
+                return false;
+            }
+
+            if (tile.growDuration < 0f || tile.maxTime < 0f)
+            {
+                error = $"tiles[{i}] has invalid grow time values.";
                 return false;
             }
         }
@@ -553,28 +531,22 @@ public class GameStateAssembler : MonoBehaviour
         return filePath;
     }
 
-    private GameSnapshotSaveRequest BuildSaveRequest(GameStateSnapshot snapshot)
-    {
-        // 백엔드 문서에 맞는 저장 요청 형태로 다시 변환한다.
-        return new GameSnapshotSaveRequest
-        {
-            currentToken = snapshot.currentToken,
-            gold = snapshot.gold,
-            farmLevel = snapshot.farmLevel,
-            farmNowExp = snapshot.farmNowExp,
-            characterID = snapshot.characterID,
-            quest = snapshot.quest,
-            tiles = snapshot.tiles,
-            inventory = snapshot.inventory
-        };
-    }
-
-    private void ApplyLoadedSnapshot(LatestSnapshotResponse response)
+    private void ApplyLoadedSnapshot(GameStateSnapshot snapshot)
     {
         // 로드된 값을 타일, 인벤토리, 재화, 농장 레벨 순서로 현재 씬에 반영한다.
+        if (snapshot == null)
+        {
+            return;
+        }
+
+        if (middleDB != null && snapshot.worldSeed != 0)
+        {
+            middleDB.SetWorldSeed(snapshot.worldSeed);
+        }
+
         if (middleDB != null)
         {
-            middleDB.LoadTileStates(response.tiles);
+            middleDB.LoadTileStates(snapshot.tiles);
         }
 
         if (tileManager != null)
@@ -585,35 +557,34 @@ public class GameStateAssembler : MonoBehaviour
 
         if (inventoryManager != null)
         {
-            inventoryManager.LoadInventory(response.inventory);
+            inventoryManager.LoadInventory(snapshot.inventory);
         }
 
         if (tokenManager != null)
         {
-            int loadedToken = response.currentToken > 0 ? response.currentToken : response.token;
-            tokenManager.SetToken(loadedToken);
+            tokenManager.SetToken(snapshot.currentToken);
         }
 
         if (goldManager != null)
         {
-            goldManager.SetGold(response.gold);
+            goldManager.SetGold(snapshot.gold);
         }
 
         if (farmLevelManager != null)
         {
             farmLevelManager.InitializeFromBackend(new FarmLevelStateDto
             {
-                farmLevel = response.farmLevel > 0 ? response.farmLevel : 1,
-                farmNowExp = Mathf.Max(0, response.farmNowExp)
+                farmLevel = snapshot.farmLevel > 0 ? snapshot.farmLevel : 1,
+                farmNowExp = Mathf.Max(0, snapshot.farmNowExp)
             });
         }
 
         if (characterManager != null)
         {
-            characterManager.SetCharacterIDWithoutSFX(Mathf.Max(0, response.characterID));
+            characterManager.SetCharacterIDWithoutSFX(Mathf.Max(0, snapshot.characterID));
         }
 
-        ApplyQuestState(response.quest);
+        ApplyQuestState(snapshot.quest);
     }
 
     private void ApplyDefaultState(bool activateQuest)
@@ -684,11 +655,14 @@ public class GameStateAssembler : MonoBehaviour
 }
 
 [Serializable]
-// 서버로 전송할 게임 상태의 최상위 묶음.
+// 로컬 파일에 저장할 게임 상태의 최상위 묶음.
 public class GameStateSnapshot
 {
     // 내부 조립용 전체 스냅샷. 저장 요청 직전 DTO로 다시 변환된다.
+    public int schemaVersion;
     public string userId;
+    public int worldSeed;
+    public string savedAt;
     public TileStateDto[] tiles;
     public InventoryItemDto[] inventory;
     public int currentToken;
@@ -700,7 +674,7 @@ public class GameStateSnapshot
 }
 
 [Serializable]
-// 타일 하나를 서버에 전달하기 위한 최소 상태 정보.
+// 타일 하나를 저장하기 위한 최소 상태 정보.
 public class TileStateDto
 {
     public int id;
@@ -708,6 +682,8 @@ public class TileStateDto
     public string cropType;
     public string cropState;
     public int variantIndex;
+    public float growDuration;
+    public float maxTime;
 }
 
 [Serializable]

@@ -160,13 +160,32 @@ public class MiddleDB : MonoBehaviour
 
             state.id = tileDto.id;
             state.coord = new Vector2Int(tileDto.id % width, tileDto.id / width);
-           // state.tileType = ParseEnum(tileDto.tileType, TileData.TileType.Soil);
+            state.tileType = ParseEnum(tileDto.tileType, state.tileType);
             state.cropType = ParseEnum(tileDto.cropType, TileData.CropType.IsEmpty);
             state.cropState = ParseEnum(tileDto.cropState, TileData.CropState.IsEmpty);
             state.variantIndex = tileDto.variantIndex;
             state.isFarmable = ComputeIsFarmable(state.tileType, state.cropType, state.cropState);
 
-            if (state.cropState != TileData.CropState.IsGrowing)
+            if (state.cropState == TileData.CropState.IsGrowing)
+            {
+                float maxTime = Mathf.Max(0f, tileDto.maxTime);
+
+                if (maxTime <= 0f && CropManager.instance != null)
+                {
+                    CropsData cropData = CropManager.instance.GetCropData(state.cropType);
+                    if (cropData != null)
+                    {
+                        maxTime = Mathf.Max(0f, cropData.growTime);
+                    }
+                }
+
+                float growDuration = tileDto.growDuration > 0f ? tileDto.growDuration : maxTime;
+                state.maxTime = maxTime;
+                state.growDuration = maxTime > 0f
+                    ? Mathf.Clamp(growDuration, 0f, maxTime)
+                    : Mathf.Max(0f, growDuration);
+            }
+            else
             {
                 state.growDuration = 0f;
                 state.maxTime = 0f;
